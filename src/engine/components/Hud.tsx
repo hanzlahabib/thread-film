@@ -5,8 +5,13 @@ import {useTheme} from '../theme';
 
 type Props = {model: Model};
 
+/** Portrait: top of the pill row inside the top band. The caption card takes the row below, 16 px or more clear. */
+const PORTRAIT_PILL_TOP = 22;
+
 // Standing furniture of the journey: which screen the line is on, how far along the whole line it is, and an
-// optional footnote.
+// optional footnote. The pills sit on a solid strip of the world's background across the top safe margin, so no
+// screen pixel is ever under them (the camera also keeps every landing, ring and label below that margin). The
+// strip stays opaque; only the pills fade at the pull-back, when the overview already sits below the strip.
 export default function Hud({model}: Props) {
   const frame = useCurrentFrame();
   const view = useFrame();
@@ -19,13 +24,16 @@ export default function Hud({model}: Props) {
   const overview = interpolate(frame, [model.overviewStart, model.overviewStart + 14], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const pad = (n: number) => String(n).padStart(2, '0');
 
+  // Landscape: the pills are centred in the strip. Portrait: they take its upper row.
+  const pillRow = view.portrait ? {top: PORTRAIT_PILL_TOP} : {top: view.safe.top / 2, transform: 'translateY(-50%)'};
   return (
     <AbsoluteFill style={{fontFamily: theme.fontBody, color: theme.text}}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: view.safe.top, background: theme.bg, borderBottom: `1px solid ${theme.border}`}} />
       <div
         style={{
           position: 'absolute',
           left: view.safe.side,
-          top: view.safe.top,
+          ...pillRow,
           display: 'flex',
           alignItems: 'center',
           gap: 14,
@@ -39,7 +47,7 @@ export default function Hud({model}: Props) {
         <div style={{fontSize: 22, fontWeight: 600, color: theme.textMuted, fontVariantNumeric: 'tabular-nums'}}>{`${pad(index + 1)} / ${pad(screens.length)}`}</div>
         <div style={{fontSize: 24, fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase'}}>{screens[index].kicker}</div>
       </div>
-      <div style={{position: 'absolute', right: view.safe.side, top: view.safe.top, padding: '19px 22px', borderRadius: 9999, background: theme.surface, border: `1px solid ${theme.border}`, opacity: appear * (1 - overview)}}>
+      <div style={{position: 'absolute', right: view.safe.side, ...pillRow, padding: '19px 22px', borderRadius: 9999, background: theme.surface, border: `1px solid ${theme.border}`, opacity: appear * (1 - overview)}}>
         <div style={{width: view.portrait ? 260 : 320, height: 4, borderRadius: 2, background: theme.border}}>
           <div style={{width: `${progress * 100}%`, height: 4, borderRadius: 2, background: theme.thread.color}} />
         </div>

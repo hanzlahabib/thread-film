@@ -2,6 +2,7 @@ import {Easing} from 'remotion';
 import {Trail, lerp, type Pt} from './geometry';
 import {labelExtent, labelPlacement, labelSize} from './labels';
 import {chromeInsets} from './chrome';
+import {CLOSING_GAP, closingLayout} from './closing';
 import type {Theme} from './theme';
 import {buildTrail} from './trail';
 import {CAPTURE_W, type Journey, type Stop} from './types';
@@ -244,14 +245,30 @@ function introCamera(model: Model, frame: Frame): Camera {
   return {cx: first.origin.x + CAPTURE_W / 2, cy: first.origin.y + first.height / 2, scale};
 }
 
+/** Frames after the pull-back lands over which the camera keeps creeping in, and its rate per frame. */
+const SETTLE_RATE = 0.0006;
+/** Air kept between the top band that holds the HUD and the highest screen edge in the overview, in frame pixels. */
+const OVERVIEW_TOP_AIR = 24;
+
+/**
+ * The whole map, fitted into the band between the HUD strip at the top and the closing line at the bottom, with
+ * CLOSING_GAP of clear space left between the lowest screen edge and the type. The slow settle after landing is
+ * budgeted for, so the gap is never eaten once the camera has stopped.
+ */
 function overviewCamera(model: Model, frame: Frame): Camera {
   const {bounds} = model;
   const w = bounds.maxX - bounds.minX;
   const h = bounds.maxY - bounds.minY;
-  const scale = Math.min((frame.width - frame.safe.side * (frame.portrait ? 1 : 2)) * (frame.portrait ? 1 : 0.94) / w, (frame.height * (frame.portrait ? 0.56 : 0.64)) / h);
-  // The map sits above centre so the closing line of type has the lower part of the frame to itself.
-  const lift = (frame.height * (frame.portrait ? 0.06 : 0.14)) / scale;
-  return {cx: (bounds.minX + bounds.maxX) / 2, cy: (bounds.minY + bounds.maxY) / 2 + lift, scale};
+  const closing = closingLayout(frame.width, frame.height, frame.portrait, frame.safe.side, model.journey.outro.lines);
+  const settleMax = 1 + SETTLE_RATE * model.journey.outro.frames;
+  const regionTop = frame.safe.top + OVERVIEW_TOP_AIR;
+  const regionBottom = closing.top - CLOSING_GAP;
+  const fitW = ((frame.width - frame.safe.side * (frame.portrait ? 1 : 2)) * (frame.portrait ? 1 : 0.94)) / w;
+  const scale = Math.min(fitW, (regionBottom - regionTop) / h) / settleMax;
+  // Centre the map vertically in the region (the settle grows it about the camera centre, which is its middle).
+  const fy = frame.portrait ? FOCUS_Y.portrait : FOCUS_Y.landscape;
+  const lift = ((regionTop + regionBottom) / 2 - frame.height * fy) / scale;
+  return {cx: (bounds.minX + bounds.maxX) / 2, cy: (bounds.minY + bounds.maxY) / 2 - lift, scale};
 }
 
 /** Camera at `frame`: rests on each stop and, between stops, follows the head of the line. */
@@ -260,7 +277,7 @@ export function cameraAt(model: Model, frame: number, view: Frame): Camera {
     const a = stopCamera(model.stops[model.stops.length - 1], view);
     const b = overviewCamera(model, view);
     const e = glide(Math.min(1, (frame - model.overviewStart) / (model.overviewArrive - model.overviewStart)));
-    const settle = Math.max(0, frame - model.overviewArrive) * 0.0006;
+    const settle = Math.max(0, frame - model.overviewArrive) * SETTLE_RATE;
     return {cx: lerp(a.cx, b.cx, e), cy: lerp(a.cy, b.cy, e), scale: Math.exp(lerp(Math.log(a.scale * (1 + REST_PUSH)), Math.log(b.scale), e)) * (1 + settle)};
   }
   const {to, from, e, resting} = hopAt(model, frame);

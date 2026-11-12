@@ -12,6 +12,8 @@ type Props = {model: Model};
 
 /** A flight's caption is gone this many frames before the line lands, so the screen takes over clean. */
 const TITLE_CLEAR = 3;
+/** The closing line starts this many frames into the pull-back: formed well before the camera lands (46 frames in). */
+const CLOSING_DELAY = 10;
 
 // The whole journey as one shot: every screen in one space, one line drawn through them, and a camera that
 // follows the head of the line. Nothing here cuts, which is what keeps the line unbroken.
@@ -32,7 +34,7 @@ export default function Journey({model}: Props) {
         .map((stop) => (
           <ChapterTitle key={stop.id} lines={titleOf(stop.screen)} startFrame={stop.depart} endFrame={stop.arrive - TITLE_CLEAR} placement="corner" />
         ))}
-      <ChapterTitle lines={outro.lines} startFrame={model.overviewStart + 18} endFrame={model.durationInFrames + 30} placement="center" />
+      <ChapterTitle lines={outro.lines} startFrame={model.overviewStart + CLOSING_DELAY} endFrame={model.durationInFrames + 30} placement="center" />
       {model.stops.map((stop) => (
         <MomentLabel key={stop.id} stop={stop} camera={camera} />
       ))}
