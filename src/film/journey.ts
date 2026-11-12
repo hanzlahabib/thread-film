@@ -51,11 +51,13 @@ import type {EndCard, Hook, Journey} from '../engine';
  *   ticks?    [{mark, at}]: elements passed on the way here; they pulse when the head passes
  * }
  *
- * Journey { screens, stops (in the order the line reaches them), reveals?, intro, outro, footnote?, music? }
+ * Journey { screens, stops (in the order the line reaches them), reveals?, intro, outro, footnote?, audio?, music? }
  *   reveals  covers over part of a capture that the head of the line pulls back (drawing a chart)
  *   intro    {frames}: the opening wide shot of the first screen
  *   outro    {lines, frames}: the closing pull-back that shows the whole line, with the closing words
- *   music    {file, volume}: optional bed under public/
+ *   audio    {music?: 'calm'|'driven'|'minimal'|path|false, musicVolume?, sfx?: boolean|{volume?, overrides?}, duck?}: sound is on by
+ *            default (generated effects and a bed that follows theme.audio.mood); see skill rules/sound.md
+ *   music    {file, volume}: legacy bed under public/; still works, prefer audio.music
  *
  * TIMING needs no voiceover: the per-stop `travel` and `hold` frames above are the whole schedule.
  * To follow a voiceover instead, drop mp3 files in public/vo and list them in src/film/vo.json (see the

@@ -2,7 +2,10 @@
 // chips with a source and a destination, captures present in public/ at the size the journey says.
 import {existsSync, readFileSync} from 'node:fs';
 import {join} from 'node:path';
+import manifest from '../src/engine/audio-manifest.json';
+import {customMusicFile, moodOf} from '../src/engine/audio';
 import {end, journey} from '../src/film/journey';
+import {theme} from '../src/film/theme';
 import {applyVo, narrationFiles} from '../src/engine/vo';
 import {CAPTURE_W} from '../src/engine/types';
 import {capturePaths, validateJourney, type Issue} from '../src/engine/validate';
@@ -45,7 +48,25 @@ if (existsSync(voPath)) {
     if (!existsSync(pub(file))) issues.push({level: 'error', where: 'vo.json', message: `"${file}" is not in public/.`});
   }
 }
-if (journey.music && !existsSync(pub(journey.music.file))) issues.push({level: 'error', where: 'music', message: `"${journey.music.file}" is not in public/.`});
+
+// Sound: every file the film will play must exist, and the levels must be sane.
+const audio = journey.audio;
+const sound = {theme, journey} as Parameters<typeof customMusicFile>[0];
+const music = customMusicFile(sound);
+if (music && !existsSync(pub(music))) issues.push({level: 'error', where: 'audio.music', message: `"${music}" is not in public/. Use 'calm', 'driven', 'minimal', false, or a file under public/.`});
+if (!(moodOf(sound) in manifest.music)) issues.push({level: 'error', where: 'theme.audio.mood', message: `"${moodOf(sound)}" is not a mood. Use ${Object.keys(manifest.music).map((m) => `'${m}'`).join(', ')}.`});
+const builtIn = [...Object.values(manifest.music), ...Object.values(manifest.sfx)];
+for (const {file} of builtIn) {
+  if (!existsSync(pub(file))) issues.push({level: 'error', where: 'audio', message: `built-in sound "${file}" is missing from public/. Run \`pnpm run audio\` to regenerate it.`});
+}
+const sfx = audio?.sfx;
+for (const [cue, file] of Object.entries(typeof sfx === 'object' ? sfx.overrides ?? {} : {})) {
+  if (file && !existsSync(pub(file))) issues.push({level: 'error', where: `audio.sfx.overrides.${cue}`, message: `"${file}" is not in public/.`});
+}
+for (const [where, value, max] of [['audio.musicVolume', audio?.musicVolume, 0.4], ['audio.sfx.volume', typeof sfx === 'object' ? sfx.volume : undefined, 0.9]] as const) {
+  if (value !== undefined && !(value >= 0 && value <= 1)) issues.push({level: 'error', where, message: `${value} is outside 0..1.`});
+  else if (value !== undefined && value > max) issues.push({level: 'warning', where, message: `${value} is loud; narration and a quiet film both get harsh above about ${max}.`});
+}
 if (!end.cta.trim()) issues.push({level: 'error', where: 'end card', message: 'cta is empty.'});
 
 const errors = issues.filter((i) => i.level === 'error');

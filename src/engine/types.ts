@@ -104,8 +104,27 @@ export type Journey = {
   };
   /** Small standing line in the corner, for example a note that the data is demo data. */
   footnote?: string;
-  /** Optional music bed under public/. */
+  /** Legacy music bed under public/. Still works; prefer `audio.music`. */
   music?: {file: string; volume: number};
+  /** Sound: music bed, sound effects and ducking. Everything is on by default; see skill rules/sound.md. */
+  audio?: AudioOptions;
+};
+
+/** How a film sounds. The theme's `audio.mood` picks the default bed so the sound follows the look. */
+export type AudioMood = 'calm' | 'driven' | 'minimal';
+
+/** Every sound effect the engine can cue from the schedule. */
+export type CueName = 'whoosh' | 'whooshLong' | 'tick' | 'ring' | 'pop' | 'swap' | 'chime' | 'riser';
+
+export type AudioOptions = {
+  /** A built-in mood, a file under public/, or false for no music. Default: the theme's mood ('calm'). */
+  music?: AudioMood | string | false;
+  /** 0..1, default 0.5. It is the level while nothing is spoken; the bed ducks under narration. */
+  musicVolume?: number;
+  /** false turns every effect off. `volume` (0..1, default 0.5) scales them; `overrides` swaps or mutes single cues. */
+  sfx?: boolean | {volume?: number; overrides?: Partial<Record<CueName, string | false>>};
+  /** Lower the music under narration and under the big effects. Default true. */
+  duck?: boolean;
 };
 
 /** What the end card says. Offer and call to action are props, never baked into the film. */

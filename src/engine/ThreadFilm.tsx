@@ -1,10 +1,12 @@
 import {useMemo} from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig, type CalculateMetadataFunction} from 'remotion';
 import {getAudioDurationInSeconds} from '@remotion/media-utils';
+import {buildSoundtrack, customMusicFile} from './audio';
 import EndCard from './EndCard';
 import HookCard from './HookCard';
 import Journey from './Journey';
 import {buildModel} from './model';
+import SoundLayer from './SoundLayer';
 import {ThemeContext} from './theme';
 import type {FilmProps} from './types';
 import {applyVo, narrationFiles} from './vo';
@@ -21,7 +23,9 @@ function layout(props: FilmProps) {
   const hookFrames = props.hook ? props.hook.frames ?? HOOK_FRAMES : 0;
   const journeyStart = props.hook ? hookFrames - FADE : 0;
   const endStart = journeyStart + model.durationInFrames - FADE;
-  return {model, hookFrames, journeyStart, endStart, total: endStart + END_FRAMES, journey};
+  const total = endStart + END_FRAMES;
+  const sound = buildSoundtrack({...props, journey}, model, journeyStart, endStart, total, known);
+  return {model, hookFrames, journeyStart, endStart, total, journey, sound};
 }
 
 /** Total length of a film in frames. */
@@ -35,7 +39,8 @@ export function filmDuration(props: FilmProps): number {
  */
 export const calculateFilmMetadata: CalculateMetadataFunction<FilmProps> = async ({props}) => {
   const {journey, seconds} = applyVo(props.journey, props.vo);
-  const missing = narrationFiles(journey).filter((f) => seconds[f] === undefined);
+  const music = customMusicFile(props);
+  const missing = [...narrationFiles(journey), ...(music ? [music] : [])].filter((f) => seconds[f] === undefined && props.narrationSeconds?.[f] === undefined);
   const entries = await Promise.all(
     missing.map(async (file) => {
       try {
@@ -45,7 +50,7 @@ export const calculateFilmMetadata: CalculateMetadataFunction<FilmProps> = async
       }
     }),
   );
-  const next = {...props, narrationSeconds: Object.fromEntries(entries)};
+  const next = {...props, narrationSeconds: {...props.narrationSeconds, ...Object.fromEntries(entries)}};
   return {durationInFrames: filmDuration(next), props: next};
 };
 
@@ -55,12 +60,8 @@ const fadeIn = (frame: number, from: number) => interpolate(frame, [from, from +
 export default function ThreadFilm(props: FilmProps) {
   const {theme, end, hook} = props;
   const frame = useCurrentFrame();
-  const {fps, durationInFrames} = useVideoConfig();
-  const {model, hookFrames, journeyStart, endStart, journey} = useMemo(() => layout(props), [props]);
-  const music = journey.music;
-  const voiceRanges = model.narration.map((cue) => [journeyStart + cue.frame, journeyStart + cue.frame + cue.frames] as const);
-  // Music sits under narration: about a third of its level while a line is spoken.
-  const duck = (f: number) => (voiceRanges.some(([a, b]) => f >= a - 6 && f <= b + 6) ? 0.35 : 1);
+  const {fps} = useVideoConfig();
+  const {model, hookFrames, journeyStart, endStart, sound} = useMemo(() => layout(props), [props]);
 
   return (
     <ThemeContext.Provider value={theme}>
@@ -87,12 +88,7 @@ export default function ThreadFilm(props: FilmProps) {
             <EndCard {...end} />
           </AbsoluteFill>
         </Sequence>
-        {music ? (
-          <Audio
-            src={staticFile(music.file)}
-            volume={(f) => music.volume * duck(f) * interpolate(f, [0, 20, durationInFrames - 45, durationInFrames - 4], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
-          />
-        ) : null}
+        <SoundLayer sound={sound} />
       </AbsoluteFill>
     </ThemeContext.Provider>
   );

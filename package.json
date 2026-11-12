@@ -1,6 +1,6 @@
 {
   "name": "thread-film",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Product films where one drawn line travels through your real screens. A Remotion engine driven by two files: a theme and a journey.",
   "license": "MIT",
   "private": true,
@@ -9,12 +9,15 @@
     "studio": "remotion studio src/index.ts",
     "compositions": "remotion compositions src/index.ts",
     "validate": "tsx scripts/validate.ts",
+    "story-check": "tsx scripts/story-check.ts",
+    "test:story": "tsx scripts/story-check.test.ts",
     "typecheck": "tsc --noEmit",
     "render:16x9": "remotion render src/index.ts film-16x9 out/film-16x9.mp4 --codec=h264 --crf=18 --concurrency=2",
     "render:9x16": "remotion render src/index.ts film-9x16 out/film-9x16.mp4 --codec=h264 --crf=18 --concurrency=2",
     "render:demo": "remotion render src/index.ts film-16x9 out/demo-dark.mp4 --codec=h264 --crf=18 --concurrency=2 && remotion render src/index.ts film-16x9-light out/demo-light.mp4 --codec=h264 --crf=18 --concurrency=2",
     "render:screens": "node scripts/render-screens.mjs",
-    "gif": "bash scripts/make-gifs.sh"
+    "gif": "bash scripts/make-gifs.sh",
+    "audio": "node scripts/make-audio.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.486",

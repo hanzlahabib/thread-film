@@ -1,14 +1,12 @@
 import {Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {useFrame} from '../frame';
-import {COUNT_SCALE, countText as formatCount, labelPlacement, labelSize} from '../labels';
+import {COUNT_SCALE, LABEL_DELAY, countText as formatCount, labelPlacement, labelSize} from '../labels';
 import {project, type Camera, type TimedStop} from '../model';
 import {useTheme} from '../theme';
 
 type Props = {stop: TimedStop; camera: Camera};
 
 const COUNT_FRAMES = 24;
-/** The label appears a beat after the ring, so the order reads: line lands, element lights, label explains. */
-const DELAY = 5;
 /** The label is fully faded by the time the head leaves, so it never trails behind the next stop. */
 const EXIT_FRAMES = 8;
 
@@ -20,7 +18,7 @@ export default function MomentLabel({stop, camera}: Props) {
   const {fps} = useVideoConfig();
   const view = useFrame();
   const theme = useTheme();
-  const start = stop.arrive + DELAY;
+  const start = stop.arrive + LABEL_DELAY;
   const end = stop.leave;
   if (frame < start || frame > end) return null;
   const local = frame - start;

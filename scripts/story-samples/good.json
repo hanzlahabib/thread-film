@@ -1,0 +1,25 @@
+{
+  "story": {
+    "product": "Ledgerleaf",
+    "promise": "Know which invoice to chase today.",
+    "hook": "Who still owes you money? Scroll your email to find out.",
+    "problem": "I scroll my email to remember who still owes me.",
+    "payoff": "Reminder sent",
+    "cta": "Try Ledgerleaf at example.com",
+    "voiceover": [
+      "Who still owes you money?",
+      "Three invoices, all look the same.",
+      "One tap sorts them by days late.",
+      "Open it. Twelve days late, last reply Tuesday.",
+      "A polite reminder is already written.",
+      "You send it, and move on."
+    ]
+  },
+  "stops": [
+    {"label": "Which one is late?"},
+    {"label": "Sorted by days late"},
+    {"label": "12 days late"},
+    {"label": "Reminder ready"},
+    {"label": "Reminder sent"}
+  ]
+}

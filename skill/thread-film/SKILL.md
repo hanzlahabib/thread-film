@@ -43,8 +43,9 @@ Example prompt: `Use the thread-film skill to make a 60-second launch film for m
 | `src/film/journey.ts` | The film: screens, world positions, the line's route, every stop, labels, carried chips, end card text |
 | `public/captures/` | Your screenshots (1920 px wide, or 2x) |
 | `src/film/vo.json` and `public/vo/` | Optional narration: clips in `public/vo/` listed in `vo.json` |
+| `public/audio/` | Built-in sound effects and music beds, generated; sound needs no setup |
 
-Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. Compositions are `film-16x9` and `film-9x16` (active theme) and `film-16x9-light` and `film-9x16-light`. `pnpm validate` checks the journey (marks exist, captures exist for both modes, no stop without a route point) before any render. Scripts: `render:demo`, `render:16x9`, `render:9x16`, `render:screens`, `gif`, `studio`, `typecheck`.
+Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. Compositions are `film-16x9` and `film-9x16` (active theme) and `film-16x9-light` and `film-9x16-light`. `pnpm validate` checks the journey (marks exist, captures exist for both modes, no stop without a route point) before any render. Scripts: `render:demo`, `render:16x9`, `render:9x16`, `render:screens`, `gif`, `audio` (regenerates the sound effects and music beds), `studio`, `typecheck`.
 
 ## Workflow
 1. Read `rules/pattern.md` and `rules/why-this-works.md`.
@@ -53,9 +54,9 @@ Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. C
 4. Get captures (`rules/captures.md`) and measure every anchor from the capture pixels.
 5. Fill `src/film/journey.ts` (`rules/building.md`).
 6. Run `pnpm validate`, then prove one screen change on stills before building the rest.
-7. Add narration if wanted; the schedule follows its measured length.
+7. Sound is automatic (effects cued from the schedule, a bed that follows `theme.audio.mood`, see `rules/sound.md`). Add narration if wanted; the schedule follows its measured length and the music ducks under it.
 8. Render 16:9 once, check a frame per second and every screen change, then render 9:16.
-9. Report honestly what was checked and what was not (audio is not checked by looking at frames).
+9. Report honestly what was checked and what was not (audio is measured with ffmpeg, never judged from frames; say if nobody listened).
 
 ## File references
 - `rules/pattern.md`: the pattern and its rules
@@ -63,7 +64,9 @@ Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. C
 - `rules/theming.md`: theme from the project or prompt
 - `rules/building.md`: engine layout and how to make a film
 - `rules/captures.md`: getting real captures safely
+- `rules/sound.md`: the sound cue table, timing and mix rules, mood and options
 - `rules/example.md`: the demo film in this repo (Fernwick, Order #1042, two themes)
+- `rules/story.md`: write the story before any code (hook, structure, voiceover, CTA); fill `templates/story-brief.md`; check with `pnpm run story-check`
 
 ## Validation checklist
 - [ ] Theme comes from this project or prompt, not from the demo film

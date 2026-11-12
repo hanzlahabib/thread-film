@@ -1,0 +1,19 @@
+{
+  "story": {
+    "product": "Ledgerleaf",
+    "promise": "",
+    "hook": "Ledgerleaf",
+    "problem": "",
+    "payoff": "Every client paid on time",
+    "cta": "",
+    "voiceover": [
+      "Ledgerleaf gives you a seamless and powerful way to manage invoices and reminders and clients and reports and more.",
+      "With our all-in-one dashboard you can browse your invoices, filter the overdue ones, open the details, write reminders and review settings."
+    ]
+  },
+  "stops": [
+    {"label": "Invoice list"},
+    {"label": "Filters"},
+    {"label": "Settings"}
+  ]
+}

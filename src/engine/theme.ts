@@ -1,4 +1,5 @@
 import {createContext, useContext} from 'react';
+import type {AudioMood} from './types';
 
 /**
  * Everything about how a film looks. Components read only from here: there is no colour, font or radius
@@ -7,6 +8,8 @@ import {createContext, useContext} from 'react';
 export type Theme = {
   /** Follows the product's own mode as shown in the captures. */
   mode: 'dark' | 'light';
+  /** Optional: the mood of the music bed, so the sound follows the look. Default 'calm'. */
+  audio?: {mood: AudioMood};
   /** The world behind the screens. */
   bg: string;
   /** Grid lines drawn on the world; they drift slower than the camera for parallax. */

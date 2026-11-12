@@ -1,0 +1,59 @@
+{
+  "note": "Written by scripts/make-audio.mjs. Do not edit by hand.",
+  "sfx": {
+    "whoosh-soft": {
+      "file": "audio/sfx/whoosh-soft.wav",
+      "seconds": 0.7,
+      "peak": 0.28
+    },
+    "whoosh-long": {
+      "file": "audio/sfx/whoosh-long.wav",
+      "seconds": 1.6,
+      "peak": 0.64
+    },
+    "tick": {
+      "file": "audio/sfx/tick.wav",
+      "seconds": 0.26,
+      "peak": 0.003
+    },
+    "ring": {
+      "file": "audio/sfx/ring.wav",
+      "seconds": 1,
+      "peak": 0.06
+    },
+    "pop": {
+      "file": "audio/sfx/pop.wav",
+      "seconds": 0.2,
+      "peak": 0.004
+    },
+    "swap": {
+      "file": "audio/sfx/swap.wav",
+      "seconds": 0.3,
+      "peak": 0.003
+    },
+    "chime": {
+      "file": "audio/sfx/chime.wav",
+      "seconds": 2.2,
+      "peak": 0.01
+    },
+    "riser": {
+      "file": "audio/sfx/riser.wav",
+      "seconds": 1.2,
+      "peak": 1.12
+    }
+  },
+  "music": {
+    "calm": {
+      "file": "audio/music/calm.mp3",
+      "seconds": 32
+    },
+    "driven": {
+      "file": "audio/music/driven.mp3",
+      "seconds": 32
+    },
+    "minimal": {
+      "file": "audio/music/minimal.mp3",
+      "seconds": 36
+    }
+  }
+}

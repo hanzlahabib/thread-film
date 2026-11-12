@@ -4,6 +4,8 @@ import type {Theme} from '../../engine';
 // disappears into them. Inter throughout.
 export const dark: Theme = {
   mode: 'dark',
+  // The mood of the music bed: 'calm', 'driven' or 'minimal'. Optional; calm is the default.
+  audio: {mood: 'calm'},
   bg: '#0a0f0d',
   grid: 'rgba(255,255,255,0.04)',
   surface: '#141c19',

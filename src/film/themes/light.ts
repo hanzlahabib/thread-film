@@ -4,6 +4,7 @@ import type {Theme} from '../../engine';
 // display face over Inter body text for a calmer, editorial feel.
 export const light: Theme = {
   mode: 'light',
+  audio: {mood: 'calm'},
   bg: '#eef1ee',
   grid: 'rgba(20,40,30,0.06)',
   surface: '#ffffff',

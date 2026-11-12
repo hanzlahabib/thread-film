@@ -28,9 +28,12 @@ Tell one story the whole way: one object followed from where it enters the produ
 - Something rides the head across: a chip with an icon and a few words naming the object (a person's name, "Step 1 email", "$28,500 deal"). On landing it settles into the element it becomes.
 - Lay screens out in the world so each flight is a clean curve in one direction; avoid flights that cross an earlier part of the line.
 
-## Sound and narration (optional)
-- Narration follows the journey, one clip per screen, and never states the offer or the call to action, so those can change without new audio.
-- A quiet music bed. Sync landings to narration beats.
+## Sound
+Sound is on by default and needs no per-stop work (cue table and timing in `rules/sound.md`).
+- Every flight whooshes (a long whoosh when it crosses screens), every landing ticks, a ring pulse and a label opening each get their own small sound, a carried chip swaps, a riser leads into the closing pull-back and a chime marks the end card.
+- A quiet music bed runs under the whole film, fades in and out, and ducks under narration and under the big effects. It is never louder than narration.
+- The mood of the bed follows the brand (`theme.audio.mood`: calm, driven or minimal).
+- Narration (optional) follows the journey, one clip per screen, and never states the offer or the call to action, so those can change without new audio. Sync landings to narration beats.
 
 ## Content rules
 - Real captures with demo data; show the product's real public URL in the frame's address bar.

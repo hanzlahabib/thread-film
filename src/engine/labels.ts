@@ -7,6 +7,9 @@ const GLYPH_EM = 0.56;
 /** Share of the label font size the count number is enlarged by. */
 export const COUNT_SCALE = 1.28;
 
+/** The label appears this many frames after the ring, so the order reads: line lands, element lights, label explains. */
+export const LABEL_DELAY = 5;
+
 export type LabelPlacement = {at: Pt; dir: LabelDir};
 
 /** Where a stop's label sits: the portrait override on vertical renders, the normal placement otherwise. */
