@@ -88,7 +88,7 @@ export const journey: Journey = {
     {id: 'add', screen: 'today', stub: {x: today.add.x + today.add.w, y: centreY(today.add)}, ring: today.add, label: 'One tap starts a task', travel: 34},
     {id: 'title', screen: 'new-task', stub: {x: task.title.x, y: centreY(task.title)}, ring: task.title, label: 'Type it once', carry: {icon: 'plus', text: 'Call mum'}, beat: 'key'},
     {id: 'when', screen: 'new-task', stub: {x: task.when.x + task.when.w / 2, y: task.when.y + task.when.h}, ring: task.when, label: 'Pick the time: 6:30 pm'},
-    {id: 'block', screen: 'plan', stub: {x: plan.block.x + plan.block.w, y: centreY(plan.block)}, ring: plan.block, label: 'It lands on the plan', carry: {icon: 'box', text: 'Call mum, 6:30 pm'}, beat: 'key'},
+    {id: 'block', screen: 'plan', stub: {x: plan.block.x + plan.block.w, y: centreY(plan.block)}, ring: plan.block, label: 'On your plan', carry: {icon: 'box', text: 'Call mum, 6:30 pm'}, beat: 'key'},
     {id: 'remind', screen: 'plan', stub: {x: plan.remind.x + plan.remind.w, y: centreY(plan.remind)}, ring: plan.remind, label: 'A nudge before it', zoom: 'medium'},
     {id: 'streak', screen: 'streaks', stub: {x: streaks.streak.x + streaks.streak.w, y: centreY(streaks.streak)}, ring: streaks.streak, label: 'day streak, and counting', count: {to: 12}, carry: {icon: 'chart', text: 'Call mum, done'}},
     {id: 'habit', screen: 'streaks', stub: {x: streaks.habit.x + streaks.habit.w, y: centreY(streaks.habit)}, ring: streaks.habit, label: 'Ticked off, 3 of 4', beat: 'key'},

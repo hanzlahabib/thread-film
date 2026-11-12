@@ -1,6 +1,6 @@
 {
   "name": "thread-film",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Product films where one drawn line travels through your real screens. A Remotion engine driven by two files: a theme and a journey.",
   "license": "MIT",
   "private": true,

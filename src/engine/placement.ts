@@ -15,7 +15,7 @@ const TEXT_PAD = 3;
 /** A landing without a ring is treated as a box this size, in frame pixels. */
 const POINT_BOX = 24;
 /** Sideways steps along an element's edge that are tried for a label: in units of the label's width (above and below) or height (beside). */
-const SLIDES = [0, -1, 1, -2, 2];
+const SLIDES = [0, -1, 1, -2, 2, -3, 3];
 const SLIDE_X = 0.3;
 const SLIDE_Y = 0.9;
 /** How much each kind of overlap costs, per fraction of the label covered. Text is what the film must not hide; another stop's ring is worse. */

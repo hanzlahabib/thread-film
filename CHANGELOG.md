@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 - label placement polish
+
+- Placement search: a label may slide up to three steps along an element's edge, so it can hang off the element into the gutter beside a phone; the demo and Dayfold films now validate with zero warnings (9:16 labels for the Fernwick payment and analytics stops sit under the screen, Dayfold's plan label is shorter). GIFs regenerated; the mobile GIF now ends on the held plan label.
+
 ## 0.3.0 - mobile and text fixes
 
 - Phone and tablet frames (`Screen.frame: 'phone' | 'tablet'`, replaces `'device'`; `theme.frame.bezel` is gone, the bezel scales with the screen's width), camera cut-out option, `Screen.width` for captures that are not 1920 wide.
