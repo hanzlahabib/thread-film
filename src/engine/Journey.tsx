@@ -11,7 +11,7 @@ import {cameraAt, type Model} from './model';
 type Props = {model: Model};
 
 /** A flight's caption is gone this many frames before the line lands, so the screen takes over clean. */
-const TITLE_CLEAR = 6;
+const TITLE_CLEAR = 3;
 
 // The whole journey as one shot: every screen in one space, one line drawn through them, and a camera that
 // follows the head of the line. Nothing here cuts, which is what keeps the line unbroken.
@@ -30,7 +30,7 @@ export default function Journey({model}: Props) {
       {model.stops
         .filter((s) => s.flight)
         .map((stop) => (
-          <ChapterTitle key={stop.id} lines={titleOf(stop.screen)} startFrame={stop.depart + 2} endFrame={stop.arrive - TITLE_CLEAR} placement="corner" />
+          <ChapterTitle key={stop.id} lines={titleOf(stop.screen)} startFrame={stop.depart} endFrame={stop.arrive - TITLE_CLEAR} placement="corner" />
         ))}
       <ChapterTitle lines={outro.lines} startFrame={model.overviewStart + 18} endFrame={model.durationInFrames + 30} placement="center" />
       {model.stops.map((stop) => (
