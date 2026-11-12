@@ -1,0 +1,657 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "gutterGap": 18,
+  "screens": {
+    "analytics": {
+      "chart": {
+        "label": "Daily revenue / USD, net of refunds / $0 / $400 ",
+        "rect": {
+          "x": 296,
+          "y": 327,
+          "w": 995,
+          "h": 328
+        },
+        "side": "left",
+        "edge": {
+          "x": 296,
+          "y": 491
+        },
+        "gutter": {
+          "x": 278,
+          "y": 491
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "order-point": {
+        "label": "#1042 / Mara Okafor / $212.54 / Paid Nov 12, 09:",
+        "rect": {
+          "x": 1051,
+          "y": 397,
+          "w": 200,
+          "h": 83
+        },
+        "side": "left",
+        "edge": {
+          "x": 1051,
+          "y": 439
+        },
+        "gutter": {
+          "x": 1033,
+          "y": 439
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "amount": {
+        "label": "$212.54",
+        "rect": {
+          "x": 1066,
+          "y": 426,
+          "w": 170,
+          "h": 26
+        },
+        "side": "left",
+        "edge": {
+          "x": 1066,
+          "y": 440
+        },
+        "gutter": {
+          "x": 1048,
+          "y": 440
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "top-product": {
+        "label": "Linen Throw, Moss / FW-TX-201 / 41\t$3,444.00",
+        "rect": {
+          "x": 297,
+          "y": 781,
+          "w": 993,
+          "h": 58
+        },
+        "side": "left",
+        "edge": {
+          "x": 297,
+          "y": 810
+        },
+        "gutter": {
+          "x": 279,
+          "y": 810
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "categories": {
+        "label": "Revenue by category / Textiles / $7,375 / Cerami",
+        "rect": {
+          "x": 1311,
+          "y": 327,
+          "w": 569,
+          "h": 319
+        },
+        "side": "right",
+        "edge": {
+          "x": 1880,
+          "y": 487
+        },
+        "gutter": {
+          "x": 1898,
+          "y": 487
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "recent-row": {
+        "label": "#1042\tMara Okafor\t$212.54\tPaid",
+        "rect": {
+          "x": 1312,
+          "y": 772,
+          "w": 567,
+          "h": 62
+        },
+        "side": "right",
+        "edge": {
+          "x": 1879,
+          "y": 803
+        },
+        "gutter": {
+          "x": 1897,
+          "y": 803
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "object": {
+        "label": "#1042",
+        "rect": {
+          "x": 1334,
+          "y": 793,
+          "w": 49,
+          "h": 19
+        },
+        "side": "right",
+        "edge": {
+          "x": 1383,
+          "y": 803
+        },
+        "gutter": {
+          "x": 1401,
+          "y": 803
+        },
+        "clearRun": 40,
+        "preferred": true
+      },
+      "status": {
+        "label": "Paid",
+        "rect": {
+          "x": 1745,
+          "y": 790,
+          "w": 63,
+          "h": 26
+        },
+        "side": "right",
+        "edge": {
+          "x": 1809,
+          "y": 803
+        },
+        "gutter": {
+          "x": 1827,
+          "y": 803
+        },
+        "clearRun": 240,
+        "preferred": true
+      }
+    },
+    "catalogue": {
+      "search": {
+        "label": "Search by name or SKU",
+        "rect": {
+          "x": 990,
+          "y": 182,
+          "w": 260,
+          "h": 36
+        },
+        "side": "top",
+        "edge": {
+          "x": 1120,
+          "y": 182
+        },
+        "gutter": {
+          "x": 1120,
+          "y": 164
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "product-card": {
+        "label": "In order x1 / TEXTILES / FW-TX-201 / Linen Throw",
+        "rect": {
+          "x": 296,
+          "y": 238,
+          "w": 355,
+          "h": 400
+        },
+        "side": "left",
+        "edge": {
+          "x": 296,
+          "y": 438
+        },
+        "gutter": {
+          "x": 278,
+          "y": 438
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "stock-badge": {
+        "label": "Low stock · 4",
+        "rect": {
+          "x": 512,
+          "y": 925,
+          "w": 120,
+          "h": 26
+        },
+        "side": "right",
+        "edge": {
+          "x": 632,
+          "y": 938
+        },
+        "gutter": {
+          "x": 650,
+          "y": 938
+        },
+        "clearRun": 40,
+        "preferred": true
+      },
+      "object": {
+        "label": "#1042",
+        "rect": {
+          "x": 1549,
+          "y": 117,
+          "w": 70,
+          "h": 30
+        },
+        "side": "right",
+        "edge": {
+          "x": 1619,
+          "y": 132
+        },
+        "gutter": {
+          "x": 1637,
+          "y": 132
+        },
+        "clearRun": 176,
+        "preferred": true
+      },
+      "customer": {
+        "label": "MO / Mara Okafor / mara.okafor@example.com / +1 ",
+        "rect": {
+          "x": 1429,
+          "y": 166,
+          "w": 450,
+          "h": 103
+        },
+        "side": "right",
+        "edge": {
+          "x": 1879,
+          "y": 218
+        },
+        "gutter": {
+          "x": 1897,
+          "y": 218
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "line-items": {
+        "label": "Linen Throw, Moss / FW-TX-201 · qty 1 / $84.00 /",
+        "rect": {
+          "x": 1429,
+          "y": 269,
+          "w": 450,
+          "h": 236
+        },
+        "side": "right",
+        "edge": {
+          "x": 1879,
+          "y": 387
+        },
+        "gutter": {
+          "x": 1897,
+          "y": 387
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "amount": {
+        "label": "$212.54",
+        "rect": {
+          "x": 1778,
+          "y": 881,
+          "w": 79,
+          "h": 27
+        },
+        "side": "right",
+        "edge": {
+          "x": 1857,
+          "y": 895
+        },
+        "gutter": {
+          "x": 1875,
+          "y": 895
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "primary-action": {
+        "label": "Create order",
+        "rect": {
+          "x": 1451,
+          "y": 937,
+          "w": 406,
+          "h": 48
+        },
+        "side": "right",
+        "edge": {
+          "x": 1857,
+          "y": 961
+        },
+        "gutter": {
+          "x": 1875,
+          "y": 961
+        },
+        "clearRun": 240,
+        "preferred": true
+      }
+    },
+    "order": {
+      "object": {
+        "label": "Order #1042",
+        "rect": {
+          "x": 296,
+          "y": 98,
+          "w": 180,
+          "h": 35
+        },
+        "side": "left",
+        "edge": {
+          "x": 296,
+          "y": 115
+        },
+        "gutter": {
+          "x": 278,
+          "y": 115
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "status": {
+        "label": "Awaiting payment",
+        "rect": {
+          "x": 490,
+          "y": 102,
+          "w": 137,
+          "h": 26
+        },
+        "side": "right",
+        "edge": {
+          "x": 627,
+          "y": 115
+        },
+        "gutter": {
+          "x": 645,
+          "y": 115
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "primary-action": {
+        "label": "Take payment",
+        "rect": {
+          "x": 1716,
+          "y": 118,
+          "w": 164,
+          "h": 42
+        },
+        "side": "left",
+        "edge": {
+          "x": 1716,
+          "y": 139
+        },
+        "gutter": {
+          "x": 1698,
+          "y": 139
+        },
+        "clearRun": 8,
+        "preferred": true
+      },
+      "amount": {
+        "label": "Total due / $212.54 / USD · incl. tax",
+        "rect": {
+          "x": 296,
+          "y": 182,
+          "w": 255,
+          "h": 118
+        },
+        "side": "right",
+        "edge": {
+          "x": 551,
+          "y": 241
+        },
+        "gutter": {
+          "x": 569,
+          "y": 241
+        },
+        "clearRun": 24,
+        "preferred": false
+      },
+      "items-table": {
+        "label": "PRODUCT\tQTY\tPRICE\tTOTAL / Linen Throw, Moss / FW",
+        "rect": {
+          "x": 297,
+          "y": 382,
+          "w": 1078,
+          "h": 254
+        },
+        "side": "left",
+        "edge": {
+          "x": 297,
+          "y": 509
+        },
+        "gutter": {
+          "x": 279,
+          "y": 509
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "totals": {
+        "label": "Subtotal / $188.00 / Shipping · standard / $9.50",
+        "rect": {
+          "x": 993,
+          "y": 659,
+          "w": 360,
+          "h": 148
+        },
+        "side": "left",
+        "edge": {
+          "x": 993,
+          "y": 733
+        },
+        "gutter": {
+          "x": 975,
+          "y": 733
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "customer": {
+        "label": "MO / Mara Okafor / mara.okafor@example.com / +1 ",
+        "rect": {
+          "x": 1423,
+          "y": 264,
+          "w": 434,
+          "h": 62
+        },
+        "side": "right",
+        "edge": {
+          "x": 1857,
+          "y": 295
+        },
+        "gutter": {
+          "x": 1875,
+          "y": 295
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "timeline": {
+        "label": "Order created / 09:41 · Priya Shah converted the",
+        "rect": {
+          "x": 1423,
+          "y": 580,
+          "w": 434,
+          "h": 232
+        },
+        "side": "right",
+        "edge": {
+          "x": 1857,
+          "y": 696
+        },
+        "gutter": {
+          "x": 1875,
+          "y": 696
+        },
+        "clearRun": 240,
+        "preferred": true
+      }
+    },
+    "payment": {
+      "payment-row": {
+        "label": "pay_3k9x2\t#1042\tMara Okafor\tCard 4242\t$212.54\tPa",
+        "rect": {
+          "x": 297,
+          "y": 434,
+          "w": 1058,
+          "h": 74
+        },
+        "side": "left",
+        "edge": {
+          "x": 297,
+          "y": 471
+        },
+        "gutter": {
+          "x": 279,
+          "y": 471
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "status": {
+        "label": "Paid",
+        "rect": {
+          "x": 1067,
+          "y": 458,
+          "w": 63,
+          "h": 26
+        },
+        "side": "left",
+        "edge": {
+          "x": 1067,
+          "y": 471
+        },
+        "gutter": {
+          "x": 1049,
+          "y": 471
+        },
+        "clearRun": 24,
+        "preferred": true
+      },
+      "object": {
+        "label": "Order #1042",
+        "rect": {
+          "x": 1743,
+          "y": 201,
+          "w": 114,
+          "h": 30
+        },
+        "side": "left",
+        "edge": {
+          "x": 1743,
+          "y": 216
+        },
+        "gutter": {
+          "x": 1725,
+          "y": 216
+        },
+        "clearRun": 236,
+        "preferred": true
+      },
+      "amount": {
+        "label": "$212.54",
+        "rect": {
+          "x": 1399,
+          "y": 291,
+          "w": 174,
+          "h": 51
+        },
+        "side": "left",
+        "edge": {
+          "x": 1399,
+          "y": 316
+        },
+        "gutter": {
+          "x": 1381,
+          "y": 316
+        },
+        "clearRun": 240,
+        "preferred": true
+      },
+      "details": {
+        "label": "Customer / Mara Okafor / Method / Card ending 42",
+        "rect": {
+          "x": 1399,
+          "y": 362,
+          "w": 458,
+          "h": 120
+        },
+        "side": "left",
+        "edge": {
+          "x": 1399,
+          "y": 422
+        },
+        "gutter": {
+          "x": 1381,
+          "y": 422
+        },
+        "clearRun": 108,
+        "preferred": true
+      },
+      "customer": {
+        "label": "Mara Okafor",
+        "rect": {
+          "x": 1528,
+          "y": 362,
+          "w": 329,
+          "h": 21
+        },
+        "side": "left",
+        "edge": {
+          "x": 1528,
+          "y": 372
+        },
+        "gutter": {
+          "x": 1510,
+          "y": 372
+        },
+        "clearRun": 40,
+        "preferred": true
+      },
+      "timeline": {
+        "label": "Authorised / 09:58:02 · card verified / Captured",
+        "rect": {
+          "x": 1399,
+          "y": 523,
+          "w": 458,
+          "h": 169
+        },
+        "side": "left",
+        "edge": {
+          "x": 1399,
+          "y": 607
+        },
+        "gutter": {
+          "x": 1381,
+          "y": 607
+        },
+        "clearRun": 100,
+        "preferred": true
+      },
+      "primary-action": {
+        "label": "Send receipt",
+        "rect": {
+          "x": 1399,
+          "y": 941,
+          "w": 458,
+          "h": 48
+        },
+        "side": "left",
+        "edge": {
+          "x": 1399,
+          "y": 965
+        },
+        "gutter": {
+          "x": 1381,
+          "y": 965
+        },
+        "clearRun": 240,
+        "preferred": true
+      }
+    }
+  }
+}

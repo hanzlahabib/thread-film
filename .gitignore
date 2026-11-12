@@ -1,0 +1,6 @@
+out/
+node_modules/
+.DS_Store
+*.log
+# throw-away stand-ins used while developing the engine
+public/captures/_placeholder*
