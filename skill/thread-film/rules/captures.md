@@ -15,7 +15,7 @@
 - Wait for data: no skeletons, spinners or toasts in frame. Dismiss tours with their own Skip or Close.
 - Hide floating support widgets, environment banners and balance chips with a temporary injected style (visual only).
 - Hide text that breaks the project's brand rules.
-- Target 1920 px wide (a 2x device scale factor gives sharper zooms). Set the viewport with your tool's device-metrics option rather than stitching tiles.
+- Target 1920 px wide (a 2x device scale factor gives sharper zooms). For a phone or tablet app capture at the device's own CSS size with scale factor 3 and read `mobile.md`; do not scale phone screenshots into a 1920 canvas. Set the viewport with your tool's device-metrics option rather than stitching tiles.
 - Capture in the mode the film will use: the app's dark or light mode decides the film's mode (`theming.md`). If the film ships both, capture both.
 - Record beside each capture where and when it was taken and at what viewport.
 

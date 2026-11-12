@@ -1,7 +1,8 @@
 import {Img, staticFile} from 'remotion';
-import {chromeInsets, frameKind} from '../chrome';
+import {chromeInsets, frameKind, isDevice} from '../chrome';
 import {useTheme} from '../theme';
-import {CAPTURE_W, byMode, type Screen} from '../types';
+import {byMode, screenWidth, type Screen} from '../types';
+import DeviceFrame from './DeviceFrame';
 
 type Props = {
   screen: Screen;
@@ -9,28 +10,26 @@ type Props = {
   mask?: {x: number; y: number; w: number; h: number; color: string} | null;
 };
 
-/** Width of the camera pill on a device bezel, as a fraction of the capture width. */
-const NOTCH_W = 0.11;
-
 // One real capture in the chrome the theme (or the screen) asks for, placed at its world position. Sizes are
-// world pixels, which are capture pixels.
+// world pixels, which are capture pixels. A phone or tablet is drawn by DeviceFrame.
 export default function ScreenFrame({screen, mask}: Props) {
   const theme = useTheme();
   const kind = frameKind(screen, theme);
+  if (isDevice(kind)) return <DeviceFrame screen={screen} kind={kind} mask={mask} />;
   const inset = chromeInsets(screen, theme);
+  const width = screenWidth(screen);
   const bar = kind === 'browser' ? theme.frame.bar : 0;
-  const bezel = kind === 'device' ? theme.frame.bezel : 0;
   return (
     <div
       style={{
         position: 'absolute',
         left: screen.origin.x - inset.side,
         top: screen.origin.y - inset.top,
-        width: CAPTURE_W + inset.side * 2,
+        width: width + inset.side * 2,
         height: screen.height + inset.top + inset.bottom,
-        borderRadius: kind === 'none' ? 0 : theme.radius + bezel,
+        borderRadius: kind === 'none' ? 0 : theme.radius,
         overflow: 'hidden',
-        background: kind === 'device' ? theme.frame.barBg : theme.surface,
+        background: theme.surface,
         boxShadow: kind === 'none' ? 'none' : `0 0 0 2px ${theme.border}, ${theme.frame.shadow}`,
       }}
     >
@@ -58,11 +57,10 @@ export default function ScreenFrame({screen, mask}: Props) {
           </div>
         </div>
       ) : null}
-      <div style={{position: 'relative', margin: `${bezel}px ${bezel}px`, width: CAPTURE_W, height: screen.height, borderRadius: bezel > 0 ? theme.radius : 0, overflow: 'hidden'}}>
-        <Img src={staticFile(byMode(screen.capture, theme.mode))} style={{width: CAPTURE_W, height: screen.height, display: 'block'}} />
+      <div style={{position: 'relative', width, height: screen.height, overflow: 'hidden'}}>
+        <Img src={staticFile(byMode(screen.capture, theme.mode))} style={{width, height: screen.height, display: 'block'}} />
         {mask ? <div style={{position: 'absolute', left: mask.x, top: mask.y, width: mask.w, height: mask.h, background: mask.color}} /> : null}
       </div>
-      {bezel > 0 ? <div style={{position: 'absolute', left: '50%', top: bezel * 0.3, width: CAPTURE_W * NOTCH_W, height: bezel * 0.4, marginLeft: -CAPTURE_W * NOTCH_W * 0.5, borderRadius: 9999, background: theme.border}} /> : null}
     </div>
   );
 }

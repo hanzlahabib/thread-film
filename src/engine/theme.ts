@@ -1,6 +1,9 @@
 import {createContext, useContext} from 'react';
 import type {AudioMood} from './types';
 
+/** The chrome drawn around a capture. */
+export type FrameKind = 'browser' | 'phone' | 'tablet' | 'none';
+
 /**
  * Everything about how a film looks. Components read only from here: there is no colour, font or radius
  * anywhere else in the engine. Write one of these per film (see src/film/theme.ts).
@@ -38,14 +41,13 @@ export type Theme = {
   chip: {bg: string; text: string; border: string};
   frame: {
     /**
-     * Chrome around each capture: a 'browser' window with an address bar, a 'device' bezel, or 'none' for
-     * full-bleed captures. A screen can override this in the journey (`Screen.frame`).
+     * Chrome around each capture: a 'browser' window with an address bar, a 'phone' or 'tablet' bezel, or
+     * 'none' for full-bleed captures. A screen can override this in the journey (`Screen.frame`).
      */
-    kind: 'browser' | 'device' | 'none';
+    kind: FrameKind;
     /** Height of the browser title bar in capture pixels. */
     bar: number;
-    /** Thickness of the device bezel in capture pixels. */
-    bezel: number;
+    /** Browser title bar, and the body of a phone or tablet. */
     barBg: string;
     urlBg: string;
     urlText: string;

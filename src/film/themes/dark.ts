@@ -19,5 +19,5 @@ export const dark: Theme = {
   fontDisplay: 'Inter, "Helvetica Neue", Arial, sans-serif',
   fontBody: 'Inter, "Helvetica Neue", Arial, sans-serif',
   chip: {bg: '#141c19', text: '#f3f6f4', border: '#27332e'},
-  frame: {kind: 'browser', bar: 56, bezel: 28, barBg: '#0e1512', urlBg: '#1a2420', urlText: '#9fb0a8', shadow: '0 6px 18px rgba(0,0,0,0.4)'},
+  frame: {kind: 'browser', bar: 56, barBg: '#0e1512', urlBg: '#1a2420', urlText: '#9fb0a8', shadow: '0 6px 18px rgba(0,0,0,0.4)'},
 };

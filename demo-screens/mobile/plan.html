@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Plan - Dayfold</title>
+<link rel="stylesheet" href="app.css">
+<style>
+.days{position:absolute;left:20px;right:20px;top:118px;display:flex;gap:8px}
+.d{flex:1;height:60px;border-radius:16px;border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--muted);font-weight:600}
+.d b{font-size:17px;color:var(--text);margin-top:2px}
+.d.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.d.on b{color:var(--accent-ink)}
+.tl{position:absolute;left:20px;right:20px;top:200px}
+.h{position:relative;height:64px;border-top:1px solid var(--border)}
+.h span{position:absolute;left:0;top:-9px;width:44px;background:var(--bg);font-size:12px;color:var(--muted);font-weight:600}
+.ev{position:absolute;left:56px;right:0;border-radius:14px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);font-size:14px;font-weight:600}
+.ev small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+.ev.hot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ev.hot small{color:var(--accent-ink);opacity:.8}
+.remind{position:absolute;left:20px;right:20px;bottom:108px;height:60px;border-radius:18px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:15px;font-weight:600}
+.sw{width:46px;height:28px;border-radius:14px;background:var(--accent);position:relative}
+.sw i{position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:50%;background:var(--accent-ink);display:block}
+</style>
+</head>
+<body>
+<div class="status"><span class="time">9:41</span><span class="sys"><svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/><rect x="24" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg></span></div>
+
+<div class="pad" style="top:66px"><h1>Plan</h1></div>
+<div class="days"><div class="d">Tue<b>10</b></div><div class="d">Wed<b>11</b></div><div class="d on">Thu<b>12</b></div><div class="d">Fri<b>13</b></div><div class="d">Sat<b>14</b></div></div>
+
+<div class="tl">
+  <div class="h"><span>9:00</span><div class="ev" style="top:6px;height:50px">Stand-up notes<small>9:30</small></div></div>
+  <div class="h"><span>12:00</span><div class="ev" style="top:12px;height:50px">Pick up the parcel<small>12:15</small></div></div>
+  <div class="h"><span>15:00</span></div>
+  <div class="h"><span>17:00</span><div class="ev" style="top:2px;height:50px">Water the plants<small>17:00</small></div></div>
+  <div class="h"><span>18:00</span><div class="ev hot" style="top:30px;height:60px;z-index:2" data-anchor="block">Call mum<small>6:30 pm, 20 min</small></div></div>
+  <div class="h"><span>19:00</span><div class="ev" style="top:36px;height:50px">Gym, legs<small>19:15</small></div></div>
+</div>
+
+<div class="remind" data-anchor="remind"><span>Remind me 10 min before</span><div class="sw"><i></i></div></div>
+
+<div class="tabs">
+  <div><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.2 2.4 2.4 4.6-5"/></svg>Today</div>
+  <div class="on"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Plan</div>
+  <div><svg class="ic" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5 5 9.5a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.2 1 2 2 2 0-3-.5-5 1-7.5Z"/></svg>Streaks</div>
+  <div><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>You</div>
+</div>
+<div class="home"></div>
+</body>
+</html>

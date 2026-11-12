@@ -1,11 +1,14 @@
 import {Easing} from 'remotion';
-import {Trail, lerp, type Pt} from './geometry';
+import {Trail, lerp, type Pt, type Rect} from './geometry';
 import {labelExtent, labelPlacement, labelSize} from './labels';
-import {chromeInsets} from './chrome';
-import {CLOSING_GAP, closingLayout, type ClosingLayout} from './closing';
+import {chromeInsets, frameKind, isDevice} from './chrome';
+import {CLOSING_GAP, type ClosingLayout} from './closing';
+import {resolveLayout} from './layout';
+import {OVERVIEW_TOP_AIR, SETTLE_RATE, closingForSize, overviewScale} from './overview';
 import type {Theme} from './theme';
 import {buildTrail} from './trail';
-import {CAPTURE_W, type Journey, type Stop} from './types';
+import {FIT_PAD, FOCUS_Y, REST_PUSH, policyCamera, zoomPlan, type Level} from './zoom';
+import {screenWidth, type Journey, type Stop} from './types';
 
 export const FPS = 30;
 
@@ -24,8 +27,17 @@ const NARRATION_TAIL = 12;
 /** Frames the closing pull-back takes to reach the overview. */
 const OVERVIEW_TRAVEL = 46;
 
-export type TimedStop = Stop & {
+/** Beat hint as a factor on a stop's rest. */
+const BEAT = {light: 0.75, normal: 1, key: 1.6} as const;
+
+export type TimedStop = Omit<Stop, 'look'> & {
   index: number;
+  /** The capture point the camera centres on: the stop's own, else the middle of its ring, else the landing point. */
+  look: Pt;
+  /** Size and chrome of the screen the stop is on. */
+  shot: {width: number; height: number; inset: {top: number; bottom: number; side: number}; device: boolean; text?: Rect[]};
+  /** True when the camera frames this stop by the zoom policy (see zoom.ts) instead of a plain zoom number. */
+  policy: boolean;
   /** Trail distance of the landing point. */
   s: number;
   /** World position of the landing point. */
@@ -49,7 +61,12 @@ export type Bounds = {minX: number; minY: number; maxX: number; maxY: number};
 
 /** Everything the components need, computed once per film from the journey. */
 export type Model = {
+  /** The journey as laid out for the frame this model was built for (origins and routes filled in for layout 'auto'). */
   journey: Journey;
+  /** The journey as written, for building the model again at another frame size. */
+  source: Journey;
+  theme: Theme;
+  narrationSeconds: Record<string, number>;
   trail: Trail;
   /** SVG path data of the whole line. */
   path: string;
@@ -67,7 +84,8 @@ export type Model = {
  * Lays the journey out in space and time. Travel times are the motion design and stay fixed; rests are
  * stretched per screen until the screen is long enough for its narration clip, when it has one.
  */
-export function buildModel(journey: Journey, theme: Theme, narrationSeconds: Record<string, number> = {}): Model {
+export function buildModel(source: Journey, theme: Theme, narrationSeconds: Record<string, number> = {}, view: Frame = makeFrame(DEFAULT_SIZE.width, DEFAULT_SIZE.height)): Model {
+  const journey = resolveLayout(source, theme, view);
   const trail = buildTrail(journey);
   const framesOf = (file: string | undefined): number => (file && narrationSeconds[file] ? Math.ceil(narrationSeconds[file] * FPS) : 0);
   const narration: NarrationCue[] = [];
@@ -82,7 +100,8 @@ export function buildModel(journey: Journey, theme: Theme, narrationSeconds: Rec
     const group = journey.stops.filter((s) => s.screen === screen.id);
     if (group.length === 0) continue;
     const travelOf = (stop: Stop, first: boolean) => stop.travel ?? (first && stops.length > 0 ? DEFAULT_FLIGHT : DEFAULT_TRAVEL);
-    const base = group.reduce((n, stop, i) => n + travelOf(stop, i === 0) + (stop.hold ?? DEFAULT_HOLD), 0);
+    const holdOf = (stop: Stop) => Math.round((stop.hold ?? DEFAULT_HOLD) * BEAT[stop.beat ?? 'normal']);
+    const base = group.reduce((n, stop, i) => n + travelOf(stop, i === 0) + holdOf(stop), 0);
     const voice = framesOf(screen.narration);
     const need = voice === 0 ? 0 : NARRATION_LEAD + voice + NARRATION_TAIL;
     const extraPerHold = Math.max(0, need - base) / group.length;
@@ -93,8 +112,13 @@ export function buildModel(journey: Journey, theme: Theme, narrationSeconds: Rec
       const world = trail.at(s);
       const depart = cursor;
       const arrive = depart + travelOf(stop, i === 0);
-      const leave = arrive + Math.round((stop.hold ?? DEFAULT_HOLD) + extraPerHold);
-      stops.push({...stop, index: stops.length, s, world, local: {x: world.x - screen.origin.x, y: world.y - screen.origin.y}, origin: screen.origin, depart, arrive, leave, flight: i === 0 && stops.length > 0, easing: stop.pace ?? 'ramp'});
+      const leave = arrive + Math.round(holdOf(stop) + extraPerHold);
+      const local = {x: world.x - screen.origin.x, y: world.y - screen.origin.y};
+      const kind = frameKind(screen, theme);
+      const device = isDevice(kind);
+      const look = stop.look ?? (stop.ring ? {x: stop.ring.x + stop.ring.w / 2, y: stop.ring.y + stop.ring.h / 2} : local);
+      const shot = {width: screenWidth(screen), height: screen.height, inset: chromeInsets(screen, theme), device, text: screen.text};
+      stops.push({...stop, look, shot, policy: device || typeof stop.zoom !== 'number', index: stops.length, s, world, local, origin: screen.origin, depart, arrive, leave, flight: i === 0 && stops.length > 0, easing: stop.pace ?? 'ramp'});
       cursor = leave;
     });
   }
@@ -108,7 +132,7 @@ export function buildModel(journey: Journey, theme: Theme, narrationSeconds: Rec
       return {
         minX: Math.min(b.minX, s.origin.x - inset.side),
         minY: Math.min(b.minY, s.origin.y - inset.top),
-        maxX: Math.max(b.maxX, s.origin.x + CAPTURE_W + inset.side),
+        maxX: Math.max(b.maxX, s.origin.x + screenWidth(s) + inset.side),
         maxY: Math.max(b.maxY, s.origin.y + s.height + inset.bottom),
       };
     },
@@ -116,6 +140,9 @@ export function buildModel(journey: Journey, theme: Theme, narrationSeconds: Rec
   );
   const model: Model = {
     journey,
+    source,
+    theme,
+    narrationSeconds,
     trail,
     path: trail.toPath(),
     stops,
@@ -170,6 +197,8 @@ export type Frame = {width: number; height: number; portrait: boolean; safe: {to
 // Vertical video loses its top and bottom to platform UI: keep about 8% at the sides, 12% free at the top and 18%
 // at the bottom. Landscape needs far less.
 const PORTRAIT_SAFE = {side: 0.08, top: 0.12, bottom: 0.18};
+/** The shape a model is first built for, when only the length of the film matters (see buildModel). */
+const DEFAULT_SIZE = {width: 1080, height: 1920};
 const LANDSCAPE_SAFE = {side: 0.04, top: 0.07, bottom: 0.05};
 
 export function makeFrame(width: number, height: number): Frame {
@@ -184,14 +213,8 @@ const LONG_HOP_DIP = 0.16;
 const LONG_HOP = 900;
 /** How strongly the camera chases the head when the path bends away from the straight line between stops. */
 const CHASE = 0.85;
-/** Slow push-in while resting, so a hold never looks frozen. */
-const REST_PUSH = 0.035;
 /** Vertical renders are narrower, so they frame a little tighter on each element when there is room. */
 const PORTRAIT_ZOOM = 1.08;
-/** Where the focus sits in the frame, as a fraction of its height. Vertical renders sit a little above centre. */
-const FOCUS_Y = {landscape: 0.5, portrait: 0.47};
-/** Room kept between an element's ring and the frame edge when fitting, in frame pixels. */
-const FIT_PAD = 24;
 const MIN_FIT_SCALE = 0.05;
 const FIT_ITERATIONS = 22;
 
@@ -233,32 +256,42 @@ function fitScale(stop: TimedStop, frame: Frame, wanted: number): number {
   return lo;
 }
 
-function stopCamera(stop: TimedStop, frame: Frame): Camera {
-  const wanted = stop.zoom * (frame.portrait ? PORTRAIT_ZOOM : 1);
+/** Zoom of every stop in a frame, worked out once per model and frame size (see zoomPlan). */
+const plans = new WeakMap<Model, Map<string, Level[]>>();
+function planFor(model: Model, view: Frame): Level[] {
+  const key = `${view.width}x${view.height}`;
+  const byFrame = plans.get(model) ?? new Map<string, Level[]>();
+  plans.set(model, byFrame);
+  const hit = byFrame.get(key);
+  if (hit) return hit;
+  const plan = zoomPlan(model.stops, view);
+  byFrame.set(key, plan);
+  return plan;
+}
+
+/**
+ * Camera at rest on a stop. A plain number on a browser screen is the zoom as written, reduced to fit the
+ * landing, ring and label in the safe area. A phone or tablet, or a stop with a zoom hint (or none), is framed by
+ * the zoom policy: the element with its context, never the device cropped (see zoom.ts).
+ */
+export function stopCamera(model: Model, stop: TimedStop, frame: Frame): Camera {
+  if (stop.policy) return policyCamera(stop, frame, planFor(model, frame)[stop.index]);
+  const wanted = (stop.zoom as number) * (frame.portrait ? PORTRAIT_ZOOM : 1);
   return {cx: stop.origin.x + stop.look.x, cy: stop.origin.y + stop.look.y, scale: fitScale(stop, frame, wanted)};
 }
 
 function introCamera(model: Model, frame: Frame): Camera {
   const first = model.journey.screens[0];
+  const width = screenWidth(first);
   // The whole first screen with air around it.
-  const scale = Math.min((frame.width - frame.safe.side * 2) / CAPTURE_W * 0.92, ((frame.height - frame.safe.top - frame.safe.bottom) * 0.9) / first.height);
-  return {cx: first.origin.x + CAPTURE_W / 2, cy: first.origin.y + first.height / 2, scale};
-}
-
-/** Frames after the pull-back lands over which the camera keeps creeping in, and its rate per frame. */
-const SETTLE_RATE = 0.0006;
-/** Air kept between the top band that holds the HUD and the highest screen edge in the overview, in frame pixels. */
-const OVERVIEW_TOP_AIR = 24;
-
-/** Growth of the slow settle after the pull-back lands, as a factor on the camera scale. */
-function settleMax(model: Model): number {
-  return 1 + SETTLE_RATE * model.journey.outro.frames;
+  const scale = Math.min((frame.width - frame.safe.side * 2) / width * 0.92, ((frame.height - frame.safe.top - frame.safe.bottom) * 0.9) / first.height);
+  return {cx: first.origin.x + width / 2, cy: first.origin.y + first.height / 2, scale};
 }
 
 /** Layout of the closing line for this frame size; the overview camera and the caption both read it. */
 export function closingFor(model: Model, frame: Frame): ClosingLayout {
   const {bounds, journey} = model;
-  return closingLayout(frame, journey.outro.lines, journey.outro.portraitLines, {w: bounds.maxX - bounds.minX, h: bounds.maxY - bounds.minY}, settleMax(model));
+  return closingForSize(frame, journey.outro, {w: bounds.maxX - bounds.minX, h: bounds.maxY - bounds.minY});
 }
 
 /**
@@ -272,10 +305,9 @@ function overviewCamera(model: Model, frame: Frame): Camera {
   const w = bounds.maxX - bounds.minX;
   const h = bounds.maxY - bounds.minY;
   const closing = closingFor(model, frame);
-  const growth = settleMax(model);
   const regionTop = closing.map ? closing.map.top : frame.safe.top + OVERVIEW_TOP_AIR;
   const regionBottom = closing.map ? closing.map.top + closing.map.height : closing.top - CLOSING_GAP;
-  const scale = closing.map ? closing.map.scale : Math.min((frame.width - frame.safe.side * 2) * 0.94 / w, (regionBottom - regionTop) / h) / growth;
+  const scale = overviewScale(frame, model.journey.outro, {w, h});
   // Centre the map vertically in the region (the settle grows it about the camera centre, which is its middle).
   const fy = frame.portrait ? FOCUS_Y.portrait : FOCUS_Y.landscape;
   const lift = ((regionTop + regionBottom) / 2 - frame.height * fy) / scale;
@@ -285,19 +317,19 @@ function overviewCamera(model: Model, frame: Frame): Camera {
 /** Camera at `frame`: rests on each stop and, between stops, follows the head of the line. */
 export function cameraAt(model: Model, frame: number, view: Frame): Camera {
   if (frame >= model.overviewStart) {
-    const a = stopCamera(model.stops[model.stops.length - 1], view);
+    const a = stopCamera(model, model.stops[model.stops.length - 1], view);
     const b = overviewCamera(model, view);
     const e = glide(Math.min(1, (frame - model.overviewStart) / (model.overviewArrive - model.overviewStart)));
     const settle = Math.max(0, frame - model.overviewArrive) * SETTLE_RATE;
     return {cx: lerp(a.cx, b.cx, e), cy: lerp(a.cy, b.cy, e), scale: Math.exp(lerp(Math.log(a.scale * (1 + REST_PUSH)), Math.log(b.scale), e)) * (1 + settle)};
   }
   const {to, from, e, resting} = hopAt(model, frame);
-  const b = stopCamera(to, view);
+  const b = stopCamera(model, to, view);
   if (resting) {
     const rest = (frame - to.arrive) / Math.max(1, to.leave - to.arrive);
     return {...b, scale: b.scale * (1 + REST_PUSH * rest)};
   }
-  const a = from ? stopCamera(from, view) : introCamera(model, view);
+  const a = from ? stopCamera(model, from, view) : introCamera(model, view);
   const aScale = from ? a.scale * (1 + REST_PUSH) : a.scale;
   const anchorA = from ? from.world : model.trail.at(0);
   const head = model.trail.at(lerp(from ? from.s : 0, to.s, e));

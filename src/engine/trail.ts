@@ -1,5 +1,5 @@
 import {Trail, add, type Pt, type Vertex} from './geometry';
-import type {Journey, RoutePoint, Through} from './types';
+import {CAPTURE_W, screenWidth, type Journey, type RoutePoint, type Through} from './types';
 
 // Flights between screens: the handles of the bezier are this fraction of the gap, within sensible limits,
 // so short hops stay tight and long ones still arc.
@@ -40,7 +40,9 @@ export function buildTrail(journey: Journey): Trail {
       const into = unit(entry, next);
       const from = trail.end;
       const gap = Math.hypot(entry.x - from.x, entry.y - from.y);
-      const h = Math.min(HANDLE_MAX, Math.max(HANDLE_MIN, gap * HANDLE_FRACTION));
+      // The limits are for 1920-wide captures; a phone's flights scale down with its width.
+      const k = screenWidth(screen) / CAPTURE_W;
+      const h = Math.min(HANDLE_MAX * k, Math.max(HANDLE_MIN * k, gap * HANDLE_FRACTION));
       trail.cubic({x: from.x + out.x * h, y: from.y + out.y * h}, {x: entry.x - into.x * h, y: entry.y - into.y * h}, entry);
       rest = route.slice(1);
     }

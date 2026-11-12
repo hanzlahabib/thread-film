@@ -17,6 +17,10 @@ Product films where one drawn line travels through your real screens, the camera
 | ![A 9:16 render: the line carrying Order #1042 through the screens](docs/vertical.gif) | ![The closing pull-back showing the whole line through four screens](docs/pullback.gif) |
 | The same film in 9:16, with the label placements switched for the narrow frame. | The closing pull-back: the whole line, four screens, one order. |
 
+![A 9:16 film for a phone app: one task through four phone screens](docs/mobile.gif)
+
+*A phone app, in 9:16: a task through four screens of a fictional day planner (`mobile-9x16`, see `skill/thread-film/rules/mobile.md`).*
+
 The demo is a 29-second film of one order (Order #1042, $212.54) travelling through four screens of a fictional shop-ops product, Fernwick. Everything in it is data in `src/film/journey.ts` and a theme in `src/film/themes/`.
 
 ## Quickstart
@@ -33,8 +37,9 @@ Remotion downloads a headless Chrome the first time it renders. To fetch it ahea
 | Script | What it does |
 |---|---|
 | `pnpm studio` | Remotion Studio with all compositions |
-| `pnpm validate` | Checks `src/film/journey.ts` and the captures for both themes before any render |
+| `pnpm validate` | Checks every film (`src/film/journey.ts`, `src/film/mobile/journey.ts`) and its captures before any render |
 | `pnpm render:demo` | Renders `film-16x9` (active theme, dark by default) and `film-16x9-light` to `out/demo-dark.mp4` and `out/demo-light.mp4` |
+| `pnpm render:mobile` | Renders `mobile-9x16`, the phone-app demo (also `mobile-9x16-light` and `mobile-16x9` in the studio) |
 | `pnpm render:16x9`, `pnpm render:9x16` | Render one composition (active theme) to `out/film-16x9.mp4` or `out/film-9x16.mp4` |
 | `pnpm render:screens` | Re-render the demo screens in `demo-screens/` to `public/captures/` and re-measure `demo-screens/anchors.json` |
 | `pnpm gif` | Cut `docs/*.gif` from the rendered films with ffmpeg (render `render:demo` and `render:9x16` first) |

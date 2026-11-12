@@ -18,5 +18,5 @@ export const light: Theme = {
   fontDisplay: '"Instrument Serif", Georgia, "Times New Roman", serif',
   fontBody: 'Inter, "Helvetica Neue", Arial, sans-serif',
   chip: {bg: '#ffffff', text: '#14201a', border: '#d3dad5'},
-  frame: {kind: 'browser', bar: 56, bezel: 28, barBg: '#f6f8f6', urlBg: '#e6ebe7', urlText: '#5b6a62', shadow: '0 6px 18px rgba(20,40,30,0.14)'},
+  frame: {kind: 'browser', bar: 56, barBg: '#f6f8f6', urlBg: '#e6ebe7', urlText: '#5b6a62', shadow: '0 6px 18px rgba(20,40,30,0.14)'},
 };

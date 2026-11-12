@@ -26,7 +26,12 @@ Tell one story the whole way: one object followed from where it enters the produ
 ## Screen changes
 - The line exits an element, flies to the next screen and lands on the related element there.
 - Something rides the head across: a chip with an icon and a few words naming the object (a person's name, "Step 1 email", "$28,500 deal"). On landing it settles into the element it becomes.
+- Phone and tablet screens: see `mobile.md` (device frame, zoom policy, automatic layout). Never let a close-up crop the device.
+- Vary the shots: a wide establishing shot on each new screen, then medium and tight on small elements, and no three alike in a row.
 - Lay screens out in the world so each flight is a clean curve in one direction; avoid flights that cross an earlier part of the line.
+
+## Text on cards
+- Hook, captions, closing line and end card fade in and rise on a solid surface, fully formed within 8 frames and held at least 0.6 s. Never reveal text by animating a clip mask: a half-drawn line reads as cut off.
 
 ## Sound
 Sound is on by default and needs no per-stop work (cue table and timing in `rules/sound.md`).

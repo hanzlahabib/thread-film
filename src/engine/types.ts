@@ -1,6 +1,7 @@
 import type {Pt, Rect, Vertex} from './geometry';
+import type {FrameKind} from './theme';
 
-/** Width of every capture in capture pixels. All local coordinates are pixels of a capture this wide. */
+/** Default width of a capture in capture pixels. All local coordinates are pixels of a capture this wide, unless the screen sets `width`. */
 export const CAPTURE_W = 1920;
 
 /** A capture path under public/, or one per mode when the product has both and the film ships both themes. */
@@ -20,11 +21,23 @@ export type Screen = {
   capture: ByMode<string>;
   /** Capture height in capture pixels. */
   height: number;
+  /**
+   * Capture width in capture pixels. Default 1920 (CAPTURE_W). A phone screen is its CSS size, for example 390
+   * for a capture taken at 390x844 and scale 3 (the PNG may be a whole multiple of this).
+   */
+  width?: number;
   /** Text of the address bar (browser frame only). Use the product's real public URL. */
   url: string;
-  /** Overrides the theme's frame for this screen, for example a phone screen inside a web film. */
-  frame?: 'browser' | 'device' | 'none';
-  /** Where the capture's top-left corner sits in the world. */
+  /** Overrides the theme's frame for this screen: a phone screen inside a web film, or a whole mobile film. */
+  frame?: FrameKind;
+  /** Camera cut-out on a phone or tablet bezel: a pill ('island', the phone default), a 'punch' hole (the tablet default) or 'none'. */
+  notch?: 'island' | 'punch' | 'none';
+  /**
+   * Rectangles of the capture's text, in capture pixels (anchors.json lists them when the screen is rendered
+   * by scripts/render-screens.mjs). Labels are placed where they cover the least of it.
+   */
+  text?: Rect[];
+  /** Where the capture's top-left corner sits in the world. Ignored when the journey has `layout: 'auto'`. */
   origin: Pt;
   /**
    * The line's route across this screen, in capture pixels. The first point is where it enters (on or outside
@@ -35,6 +48,8 @@ export type Screen = {
   /** Optional narration clip under public/, played while the line is on this screen. */
   narration?: string;
 };
+
+export type ZoomHint = 'wide' | 'medium' | 'tight';
 
 export type LabelDir = 'up' | 'down' | 'left' | 'right';
 
@@ -56,15 +71,31 @@ export type Stop = {
   /** Outline of the element, pulsed on arrival. */
   ring?: Rect;
   label: string;
-  labelAt: Pt;
-  labelDir: LabelDir;
+  /**
+   * Where the label attaches and which way it grows. Optional on phone, tablet and text-annotated screens,
+   * where the engine tries this placement first, then the other three sides, and keeps the one that covers
+   * the least text. Always used as given on a screen without `text` in a browser frame.
+   */
+  labelAt?: Pt;
+  labelDir?: LabelDir;
   /** Placement for vertical renders, where a side label would be pushed back over its element. */
   portraitLabel?: {at: Pt; dir: LabelDir};
   /** A number that counts up in front of the label. It should repeat a number the capture shows. */
   count?: Count;
-  /** Capture point the camera centres on, and its zoom in frame pixels per capture pixel. */
-  look: Pt;
-  zoom: number;
+  /**
+   * Capture point the camera centres on. Default: the middle of the ring. On phone and tablet screens, and
+   * wherever `zoom` is a hint, the camera frames the element and its surroundings instead (see ZoomHint).
+   */
+  look?: Pt;
+  /**
+   * Either a zoom in frame pixels per capture pixel, or a hint: 'wide' (the whole screen), 'medium' or 'tight'
+   * (the element with at least 20% of the screen's width around it, and the top bar or bottom nav when it is
+   * near them). A number on a phone or tablet is capped at the tight limit. Left out, the engine chooses from
+   * the size of the element and varies the shots so that no three in a row are alike.
+   */
+  zoom?: number | ZoomHint;
+  /** How long the stop lingers: 'key' rests about 1.6 times as long (the moment the film is about), 'light' about 0.75. */
+  beat?: 'light' | 'normal' | 'key';
   /** Frames the line takes to get here from the previous stop. Default 20 inside a screen, 38 for a flight. */
   travel?: number;
   /** 'ramp' leaves fast and lands softly (default); 'glide' keeps an even pace past several elements. */
@@ -89,6 +120,13 @@ export type Reveal = {
 };
 
 export type Journey = {
+  /**
+   * 'manual' (default): every screen sits at its `origin`. 'auto': the engine arranges the screens for the
+   * shape of the composition (row, column, grid or serpentine, whichever shows them largest) and joins the
+   * routes: a route then runs from its first point to its last along the screen's margin lane, and the engine
+   * adds the legs that leave and enter by the sides facing the neighbours (see rules/mobile.md).
+   */
+  layout?: 'manual' | 'auto';
   screens: Screen[];
   /** In the order the line reaches them. */
   stops: Stop[];
@@ -154,4 +192,9 @@ export type FilmProps = {
 
 export function byMode<T>(value: ByMode<T>, mode: 'dark' | 'light'): T {
   return typeof value === 'object' && value !== null && 'dark' in value && 'light' in value ? (value as {dark: T; light: T})[mode] : (value as T);
+}
+
+/** Width of a screen's capture in capture pixels. */
+export function screenWidth(screen: Screen): number {
+  return screen.width ?? CAPTURE_W;
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 - mobile and text fixes
+
+- Phone and tablet frames (`Screen.frame: 'phone' | 'tablet'`, replaces `'device'`; `theme.frame.bezel` is gone, the bezel scales with the screen's width), camera cut-out option, `Screen.width` for captures that are not 1920 wide.
+- Zoom policy: `Stop.zoom` accepts `'wide' | 'medium' | 'tight'`; the camera keeps the element with 20% of the screen's width of context (and the top bar or bottom nav near it) and never crops a device at its sides. Automatic zoom varies shots and avoids three alike in a row. `Stop.beat` sets how long a stop rests; `Stop.look` is optional.
+- Label placement search on phone, tablet and text-annotated screens (`Screen.text`); `labelAt` and `labelDir` are optional. The validator warns when a label covers text, the element it describes or another stop's ring (9:16 and 16:9), and checks the hook's timing.
+- `Journey.layout: 'auto'`: the engine picks row, column, grid or serpentine for the largest closing overview in each composition and joins the routes.
+- Fix: hook card and end card no longer reveal text through a clip mask (half-drawn, cut-off lines); text fades and rises on the card, is formed within 8 frames, and long end titles wrap onto two or three lines.
+- Mobile demo (Dayfold, four phone screens): `src/film/mobile/`, compositions `mobile-9x16`, `mobile-9x16-light`, `mobile-16x9`, `pnpm run render:mobile`, `render-screens.mjs --set mobile`, `docs/mobile.gif`.
+- `pnpm validate` checks every film in the repo.
+
 ## 0.2.0 - sound
 
 - Sound is a first-class, zero-config feature. The schedule now cues sound effects with no per-stop work: a whoosh on every flight (a longer one when the line crosses screens, peaking 40% of the way through the flight), a tick on every landing, a pulse when a ring appears, a pop when a label opens, a swap tick when a carried chip lands, a riser into the closing pull-back and a chime on the end card.

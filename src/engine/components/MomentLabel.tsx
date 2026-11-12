@@ -1,19 +1,18 @@
 import {Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {useFrame} from '../frame';
-import {COUNT_SCALE, LABEL_DELAY, countText as formatCount, labelPlacement, labelSize} from '../labels';
-import {project, type Camera, type TimedStop} from '../model';
+import {COUNT_SCALE, LABEL_DELAY, countText as formatCount, labelSize} from '../labels';
+import type {Camera, Model, TimedStop} from '../model';
+import {labelBox} from '../placement';
 import {useTheme} from '../theme';
 
-type Props = {stop: TimedStop; camera: Camera};
+type Props = {model: Model; stop: TimedStop; camera: Camera};
 
 const COUNT_FRAMES = 24;
 /** The label is fully faded by the time the head leaves, so it never trails behind the next stop. */
 const EXIT_FRAMES = 8;
 
-const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), Math.max(min, max));
-
 // What the element the line just landed on does for the user. Lives in frame space so it keeps its size.
-export default function MomentLabel({stop, camera}: Props) {
+export default function MomentLabel({model, stop, camera}: Props) {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const view = useFrame();
@@ -29,14 +28,8 @@ export default function MomentLabel({stop, camera}: Props) {
   const progress = interpolate(local, [2, 2 + COUNT_FRAMES], [0, 1], {easing: Easing.out(Easing.cubic), extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const countText = count ? formatCount(stop, count.to * progress) : '';
   const finalCount = count ? formatCount(stop, count.to) : '';
-  const place = labelPlacement(stop, view.portrait);
-  const at = project(camera, view, {x: stop.origin.x + place.at.x, y: stop.origin.y + place.at.y});
-  const dir = place.dir;
-  const rawLeft = dir === 'right' ? at.x : dir === 'left' ? at.x - width : at.x - width / 2;
-  const rawTop = dir === 'down' ? at.y : dir === 'up' ? at.y - height : at.y - height / 2;
-  // Never pushed past the safe area: a label is moved, not cropped. The camera already framed it to fit.
-  const left = clamp(rawLeft, view.safe.side, view.width - view.safe.side - width);
-  const top = clamp(rawTop, view.safe.top, view.height - view.safe.bottom - height);
+  // Placed beside the element where it covers the least text (see placement.ts); a label is moved, never cropped.
+  const {left, top, dir} = labelBox(model, stop, camera, view);
 
   return (
     <div

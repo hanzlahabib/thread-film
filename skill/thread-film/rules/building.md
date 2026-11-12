@@ -17,11 +17,12 @@ A film is two files and some captures. The engine in `src/engine/` does the rest
 | compositions `film-16x9-light`, `film-9x16-light` | The same two outputs in the light theme |
 | `pnpm validate` | Checks the journey and both themes' captures before rendering |
 | `pnpm render:demo`, `render:16x9`, `render:9x16` | Render the demo pair, or the active-theme 16:9 or 9:16 film, into `out/` |
+| `pnpm render:mobile` | Render the phone demo, `mobile-9x16` (also `mobile-9x16-light`, `mobile-16x9`) |
 | `pnpm render:screens`, `pnpm gif` | Regenerate the demo captures and anchors; cut the README GIFs from the rendered films |
 
 ## How the pieces fit
-- **`journey.ts` is the film.** `screens` hold id, kicker, title lines, capture path, capture height, address-bar URL, `origin` in world pixels, `route` and optional `narration`. `stops` hold the element the line lands beside: `id` (equal to a `mark` on the route), `stub`, `ring`, `label` with `labelAt` and `labelDir`, optional `count`, `look` and `zoom` for the camera, optional `carry` chip and `ticks`.
-- Local coordinates are pixels of the 1920-wide capture. World coordinates are those plus the screen's `origin`.
+- **`journey.ts` is the film.** `screens` hold id, kicker, title lines, capture path, capture height, address-bar URL, `origin` in world pixels, `route` and optional `narration`. `stops` hold the element the line lands beside: `id` (equal to a `mark` on the route), `stub`, `ring`, `label` with `labelAt` and `labelDir` (optional on phone screens, where the engine searches for a clear placement), optional `count`, `look` and `zoom` (a number or `'wide' | 'medium' | 'tight'`) for the camera, `beat` for how long it rests, optional `carry` chip and `ticks`. `Screen.width` (default 1920), `Screen.frame` (`'browser' | 'phone' | 'tablet' | 'none'`) and `Journey.layout: 'auto'` are for phone and tablet films: see `mobile.md`.
+- Local coordinates are pixels of the capture, 1920 wide unless the screen sets `width`. World coordinates are those plus the screen's `origin`.
 - **`Trail`** (`src/engine/geometry.ts`) builds the line once as a single polyline. Rounded corners and curves are flattened into short chords, and every named mark is a distance along it. The schedule, the camera and the renderer all work in that one unit. Never draw the line with one path and position the head with another.
 - The schedule turns stops and measured narration lengths into frames. The film's length comes out of the content; it is not typed in.
 - **Theme:** components read only from the theme. There is no colour, font or radius elsewhere.
@@ -57,6 +58,7 @@ The engine cues sound from the schedule: do not add it stop by stop. Read `rules
 ## Final checks
 - One frame per second across the 16:9 (every three seconds is acceptable for 9:16): no black frames, text legible, nothing overflowing.
 - Every screen change: line continuous, endpoints on the intended elements, labels not covering the element they describe.
+- Hook, caption and end text: fully formed (no half-revealed line) and held at least 0.6 s; `pnpm validate` checks the hook.
 - Vertical render: labels that sit beside an element in 16:9 may need `portraitLabel`.
 - Sound: render the audio alone, measure it (peak below -1 dBFS, no digital silence, loudness timeline around a flight, a landing and the end card), and say plainly that nobody listened unless someone did. See `rules/sound.md`.
 - Commit on a branch; do not push unless asked.

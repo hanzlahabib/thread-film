@@ -1,8 +1,11 @@
 // Renders demo-screens/*.html to public/captures/<screen>-<theme>.png (1920x1080 @2x)
 // and measures every [data-anchor] element into demo-screens/anchors.json + anchors.md.
 //
-//   pnpm run render:screens                 # all screens
+//   pnpm run render:screens                 # the Fernwick screens
 //   pnpm run render:screens -- order        # one screen
+//   pnpm run render:screens -- --set mobile # the Dayfold phone screens: demo-screens/mobile/*.html at 390x844 @3
+//                                           #   -> public/captures/mobile/<screen>-<theme>.png and
+//                                           #   src/film/mobile/anchors.json (anchors and the text rectangles of each screen)
 //   CHROME_PATH=/path/to/chrome pnpm run render:screens
 //
 // Edit the HTML (or add your own screen + data-anchor attributes), then re-run.
@@ -12,10 +15,13 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import puppeteer from "puppeteer-core";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SRC = join(ROOT, "demo-screens");
-const OUT = join(ROOT, "public", "captures");
+// A set is a folder of screens, how it is captured and where its measurements go. `text` also writes the
+// rectangle of every line of text (for label placement); the Fernwick set keeps its anchors file as it was.
+const SETS = {
+  fernwick: { src: join(ROOT, "demo-screens"), out: join(ROOT, "public", "captures"), viewport: { width: 1920, height: 1080, deviceScaleFactor: 2 }, json: join(ROOT, "demo-screens", "anchors.json"), md: join(ROOT, "demo-screens", "anchors.md"), text: false },
+  mobile: { src: join(ROOT, "demo-screens", "mobile"), out: join(ROOT, "public", "captures", "mobile"), viewport: { width: 390, height: 844, deviceScaleFactor: 3 }, json: join(ROOT, "src", "film", "mobile", "anchors.json"), md: join(ROOT, "demo-screens", "mobile", "anchors.md"), text: true },
+};
 const THEMES = ["dark", "light"];
-const VIEWPORT = { width: 1920, height: 1080, deviceScaleFactor: 2 };
 // Distance of the gutter landing point from the element edge: far enough to sit
 // in the whitespace around the element, close enough that the line stays short.
 const GUTTER_GAP = 18;
@@ -49,7 +55,7 @@ function findChrome() {
 }
 
 // Runs in the page: measures anchors and picks a text-free gutter point for each.
-function measure({ gap, probe }) {
+function measure({ gap, probe, width, height, withText }) {
   const textRects = [];
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -83,7 +89,7 @@ function measure({ gap, probe }) {
       const [ex, ey] = edgeAt(side);
       const [dx, dy] = dirs[side];
       const gx = ex + dx * gap, gy = ey + dy * gap;
-      if (gx < 8 || gx > 1912 || gy < 8 || gy > 1072) continue;
+      if (gx < 8 || gx > width - 8 || gy < 8 || gy > height - 8) continue;
       let ok = true;
       for (let d = 0; d <= gap; d += 3) if (hitsText(ex + dx * d, ey + dy * d, el, 3)) ok = false;
       if (hitsText(gx, gy, el, 6)) ok = false;
@@ -96,11 +102,19 @@ function measure({ gap, probe }) {
     const label = (el.innerText || "").replace(/\s*\n\s*/g, " / ").trim().slice(0, 48);
     out[name] = { label, rect, ...(chosen ?? { side: null, edge: null, gutter: null, clearRun: 0, preferred: false }) };
   }
-  return { anchors: out, dupes };
+  const text = withText
+    ? textRects.filter((t) => t.x + t.w > 0 && t.y + t.h > 0 && t.x < width && t.y < height).map((t) => ({ x: Math.round(t.x), y: Math.round(t.y), w: Math.round(t.w), h: Math.round(t.h) }))
+    : undefined;
+  return { anchors: out, dupes, text };
 }
 
 async function main() {
-  const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
+  const args = process.argv.slice(2);
+  const setName = args.includes("--set") ? args[args.indexOf("--set") + 1] : "fernwick";
+  const set = SETS[setName];
+  if (!set) throw new Error(`Unknown set "${setName}". Known: ${Object.keys(SETS).join(", ")}`);
+  const { src: SRC, out: OUT, viewport: VIEWPORT } = set;
+  const only = args.filter((a, i) => !a.startsWith("-") && args[i - 1] !== "--set");
   const screens = readdirSync(SRC)
     .filter((f) => f.endsWith(".html"))
     .map((f) => f.replace(/\.html$/, ""))
@@ -118,7 +132,7 @@ async function main() {
         await page.goto(pathToFileURL(join(SRC, `${name}.html`)).href, { waitUntil: "load" });
         await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
         await page.evaluate(() => document.fonts.ready);
-        per[theme] = await page.evaluate(measure, { gap: GUTTER_GAP, probe: CLEAR_PROBE });
+        per[theme] = await page.evaluate(measure, { gap: GUTTER_GAP, probe: CLEAR_PROBE, width: VIEWPORT.width, height: VIEWPORT.height, withText: set.text });
         if (per[theme].dupes.length) console.warn(`${name}: duplicate anchors ${per[theme].dupes.join(", ")}`);
         const file = join(OUT, `${name}-${theme}.png`);
         await page.screenshot({ path: file, type: "png" });
@@ -131,7 +145,7 @@ async function main() {
           console.warn(`${name}: anchor "${k}" differs between themes`);
         }
       }
-      result[name] = per.dark.anchors;
+      result[name] = set.text ? { anchors: per.dark.anchors, text: per.dark.text } : per.dark.anchors;
     }
   } finally {
     await browser.close();
@@ -141,16 +155,17 @@ async function main() {
     console.log("Partial run: anchors.json/anchors.md not rewritten.");
     return;
   }
-  const json = { viewport: { width: 1920, height: 1080 }, gutterGap: GUTTER_GAP, screens: result };
-  writeFileSync(join(SRC, "anchors.json"), JSON.stringify(json, null, 2) + "\n");
-  writeFileSync(join(SRC, "anchors.md"), toMarkdown(result));
+  const json = { viewport: { width: VIEWPORT.width, height: VIEWPORT.height }, gutterGap: GUTTER_GAP, screens: result };
+  mkdirSync(dirname(set.json), { recursive: true });
+  writeFileSync(set.json, JSON.stringify(json, null, 2) + "\n");
+  writeFileSync(set.md, toMarkdown(Object.fromEntries(Object.entries(result).map(([k, v]) => [k, set.text ? v.anchors : v])), VIEWPORT));
   console.log("wrote anchors.json and anchors.md");
 }
 
-function toMarkdown(screens) {
+function toMarkdown(screens, viewport) {
   const head = `# Anchors
 
-Candidate pointing targets for each demo screen, in 1920x1080 coordinates
+Candidate pointing targets for each demo screen, in ${viewport.width}x${viewport.height} coordinates
 (top-left origin). Measured from the rendered page by
 \`scripts/render-screens.mjs\` (\`getBoundingClientRect\`), so re-run it after
 editing a screen. Generated file: edit the \`data-anchor\` attributes in the

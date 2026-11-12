@@ -50,4 +50,7 @@ gif docs/vertical.gif 5.6 5.1 "[0:v]fps=$FPS,scale=360:640:$SCALE,split[a][b];[a
 # and a 0.8 s hold at the end.
 gif docs/pullback.gif 22.0 3.5 "[0:v]fps=$FPS,scale=960:-2:$SCALE,split[a][b];[a]$PALETTE[p];[b][p]$USE[g]" "$DARK"
 
+# Mobile (5.0 s to 14.5 s of out/mobile-9x16.mp4, render it with: pnpm run render:mobile): the add button, the task typed, the time picked and the block landing on the plan, 360 wide.
+[ -f out/mobile-9x16.mp4 ] && gif docs/mobile.gif 5.0 9.5 "[0:v]fps=$FPS,scale=360:-2:$SCALE,split[a][b];[a]$PALETTE[p];[b][p]$USE[g]" out/mobile-9x16.mp4
+
 du -ch docs/*.gif | tail -1

@@ -1,0 +1,54 @@
+/* Dayfold: the fictional day-planner app of the mobile demo. 390x844 CSS pixels, dark and light.
+   Content keeps 20px of padding at the sides, so the strip 0-18px at each edge is clear: the line runs there. */
+@font-face{font-family:"Inter";src:url("../fonts/Inter-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal}
+
+:root,:root[data-theme="dark"]{
+  --bg:#0e1014;--surface:#171a21;--surface-2:#1e222b;--border:#262b36;--border-2:#343a48;
+  --text:#eef0f5;--text-2:#c1c6d2;--muted:#8c93a3;
+  --accent:#8b7cf6;--accent-ink:#0d0a24;--accent-soft:rgba(139,124,246,.16);--accent-text:#b4a9ff;
+  --ok:#5ed1a0;--ok-soft:rgba(94,209,160,.14);
+  --kbd:#171a21;--key:#2b303c;--key-text:#eef0f5;
+}
+:root[data-theme="light"]{
+  --bg:#f4f5f9;--surface:#ffffff;--surface-2:#eceef4;--border:#e1e4ec;--border-2:#cfd4df;
+  --text:#14161d;--text-2:#3a4051;--muted:#6a7282;
+  --accent:#5b4fe0;--accent-ink:#ffffff;--accent-soft:rgba(91,79,224,.11);--accent-text:#4338c4;
+  --ok:#138a5f;--ok-soft:rgba(19,138,95,.12);
+  --kbd:#d3d6df;--key:#ffffff;--key-text:#14161d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px;height:844px;overflow:hidden}
+body{background:var(--bg);color:var(--text);font:400 15px/1.35 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;position:relative}
+svg{display:block}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.status{position:absolute;left:0;right:0;top:0;height:54px}
+.status .time{position:absolute;left:34px;top:17px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.status .sys{position:absolute;right:30px;top:19px;display:flex;gap:6px;align-items:center;color:var(--text)}
+.home{position:absolute;left:128px;width:134px;bottom:8px;height:5px;border-radius:3px;background:var(--text);opacity:.85}
+
+h1{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.sub{color:var(--muted);font-size:14px;margin-top:4px}
+.pad{position:absolute;left:20px;right:20px}
+.avatar{position:absolute;right:20px;top:64px;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent-text);display:grid;place-items:center;font-weight:650;font-size:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px}
+.label{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.row{display:flex;align-items:center;gap:14px;height:62px;padding:0 16px;margin-bottom:10px}
+.row .box{width:24px;height:24px;border-radius:8px;border:2px solid var(--border-2);flex:none;display:grid;place-items:center}
+.row .box.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.row .box.on svg{width:15px;height:15px;stroke-width:3}
+.row b{display:block;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.row span.t{display:block;font-size:13px;color:var(--muted)}
+.row .grow{flex:1;min-width:0}
+.row .when{font-size:13px;font-weight:600;color:var(--muted)}
+.row.hot{border-color:var(--accent);background:var(--accent-soft)}
+.row.hot .when{color:var(--accent-text)}
+.row.done b{color:var(--muted);text-decoration:line-through}
+
+.tabs{position:absolute;left:0;right:0;bottom:0;height:92px;border-top:1px solid var(--border);background:var(--bg);display:flex;padding:10px 12px 0}
+.tabs div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--muted)}
+.tabs div.on{color:var(--accent-text)}
+
+.pill{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--border-2);background:var(--surface);font-size:14px;font-weight:600;color:var(--text-2)}
+.pill.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-text)}

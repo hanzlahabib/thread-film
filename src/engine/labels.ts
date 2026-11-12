@@ -12,9 +12,18 @@ export const LABEL_DELAY = 5;
 
 export type LabelPlacement = {at: Pt; dir: LabelDir};
 
-/** Where a stop's label sits: the portrait override on vertical renders, the normal placement otherwise. */
+/** Gap between an element's ring and a label placed beside it, in capture pixels. */
+const RING_GAP = 16;
+
+/**
+ * Where a stop's label is declared to sit: the portrait override on vertical renders, the stop's own
+ * placement otherwise, and without either, to the right of its ring.
+ */
 export function labelPlacement(stop: Stop, portrait: boolean): LabelPlacement {
-  return portrait && stop.portraitLabel ? stop.portraitLabel : {at: stop.labelAt, dir: stop.labelDir};
+  if (portrait && stop.portraitLabel) return stop.portraitLabel;
+  if (stop.labelAt && stop.labelDir) return {at: stop.labelAt, dir: stop.labelDir};
+  const ring = stop.ring;
+  return ring ? {at: {x: ring.x + ring.w + RING_GAP, y: ring.y + ring.h / 2}, dir: 'right'} : {at: stop.look ?? {x: 0, y: 0}, dir: 'right'};
 }
 
 export function countText(stop: Stop, value: number): string {

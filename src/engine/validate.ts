@@ -1,6 +1,11 @@
 import type {Pt, Rect} from './geometry';
+import {hookFormedAt, hookLayout} from './HookCard';
+import {ROAD} from './layout';
+import {buildModel, makeFrame, type Frame, type Model} from './model';
+import {labelCoverage} from './placement';
+import type {Theme} from './theme';
 import {buildTrail} from './trail';
-import {CAPTURE_W, byMode, type Journey} from './types';
+import {byMode, screenWidth, type Hook, type Journey} from './types';
 
 export type Issue = {level: 'error' | 'warning'; where: string; message: string};
 
@@ -63,7 +68,7 @@ export function validateJourney(journey: Journey): Issue[] {
     if (mark < previousMark) err(where, 'it lies earlier on the line than the stop before it.');
     previousMark = mark;
 
-    const w = CAPTURE_W;
+    const w = screenWidth(screen);
     const h = screen.height;
     const world = trail.at(mark);
     const anchor = {x: world.x - screen.origin.x, y: world.y - screen.origin.y};
@@ -76,11 +81,13 @@ export function validateJourney(journey: Journey): Issue[] {
       warn(where, 'it has no ring, so nothing lights up when the line lands.');
     }
     if (stop.stub && !inside(stop.stub, w, h)) err(where, `its stub end ${fmt(stop.stub)} is outside the capture.`);
-    if (!inside(stop.look, w, h)) err(where, `look ${fmt(stop.look)} is outside the capture.`);
-    if (!inside(stop.labelAt, w, h)) err(where, `labelAt ${fmt(stop.labelAt)} is outside the capture, so the label would hang off the screen.`);
+    if (stop.look && !inside(stop.look, w, h)) err(where, `look ${fmt(stop.look)} is outside the capture.`);
+    if (stop.labelAt && !inside(stop.labelAt, w, h)) err(where, `labelAt ${fmt(stop.labelAt)} is outside the capture, so the label would hang off the screen.`);
+    if (!stop.labelAt && !stop.ring) err(where, 'it has neither a ring nor labelAt, so the label has nothing to sit beside.');
     if (stop.portraitLabel && !inside(stop.portraitLabel.at, w, h)) err(where, `portraitLabel.at ${fmt(stop.portraitLabel.at)} is outside the capture.`);
-    if (stop.ring && insideRect(stop.labelAt, stop.ring, 0) && (stop.labelDir === 'left' || stop.labelDir === 'right')) warn(where, 'its label starts inside the ring and will cover the element it describes.');
-    if (!(stop.zoom > 0)) err(where, 'zoom must be greater than 0.');
+    if (stop.ring && stop.labelAt && insideRect(stop.labelAt, stop.ring, 0) && (stop.labelDir === 'left' || stop.labelDir === 'right')) warn(where, 'its label starts inside the ring and will cover the element it describes.');
+    if (typeof stop.zoom === 'number' ? !(stop.zoom > 0) : stop.zoom !== undefined && !['wide', 'medium', 'tight'].includes(stop.zoom)) err(where, `zoom must be a number above 0 or 'wide', 'medium' or 'tight', not ${JSON.stringify(stop.zoom)}.`);
+    if (stop.beat !== undefined && !['light', 'normal', 'key'].includes(stop.beat)) err(where, `beat must be 'light', 'normal' or 'key', not ${JSON.stringify(stop.beat)}.`);
     if (!stop.label.trim()) err(where, 'the label is empty.');
     for (const tick of stop.ticks ?? []) {
       if (trail.marks[tick.mark] === undefined) err(where, `tick mark "${tick.mark}" is not on the route.`);
@@ -108,7 +115,7 @@ export function validateJourney(journey: Journey): Issue[] {
   // Screens overlapping in the world hide each other and make the line cross a capture it does not belong to.
   journey.screens.forEach((a, i) =>
     journey.screens.slice(i + 1).forEach((b) => {
-      if (a.origin.x < b.origin.x + CAPTURE_W && b.origin.x < a.origin.x + CAPTURE_W && a.origin.y < b.origin.y + b.height && b.origin.y < a.origin.y + a.height) {
+      if (a.origin.x < b.origin.x + screenWidth(b) && b.origin.x < a.origin.x + screenWidth(a) && a.origin.y < b.origin.y + b.height && b.origin.y < a.origin.y + a.height) {
         err(`screens "${a.id}" and "${b.id}"`, 'overlap in the world. Move one origin so the captures do not touch.');
       }
     }),
@@ -123,4 +130,78 @@ export function capturePaths(journey: Journey): {screen: string; path: string}[]
     const paths = typeof c === 'string' ? [c] : [byMode(c, 'dark'), byMode(c, 'light')];
     return paths.map((path) => ({screen: screen.id, path}));
   });
+}
+
+/** Frame sizes every film is checked at: both shapes of the compositions. */
+export const CHECK_FRAMES: {name: string; frame: Frame}[] = [
+  {name: '9:16', frame: makeFrame(1080, 1920)},
+  {name: '16:9', frame: makeFrame(1920, 1080)},
+];
+
+/** A route of an 'auto' journey must start and end on the margin lane, where the engine joins its legs. */
+export function validateAutoRoutes(journey: Journey): Issue[] {
+  if (journey.layout !== 'auto') return [];
+  const issues: Issue[] = [];
+  for (const screen of journey.screens) {
+    const w = screenWidth(screen);
+    const ends = [screen.route[0], screen.route[screen.route.length - 1]];
+    ends.forEach((p, i) => {
+      if ('through' in p) {
+        issues.push({level: 'error', where: `screen "${screen.id}"`, message: `with layout 'auto' the ${i === 0 ? 'first' : 'last'} point of the route must be a plain point on the margin lane.`});
+        return;
+      }
+      const edge = Math.min(p.x, w - p.x, p.y, screen.height - p.y);
+      if (edge > ROAD * 2.5) issues.push({level: 'warning', where: `screen "${screen.id}"`, message: `the ${i === 0 ? 'first' : 'last'} route point ${fmt(p)} is ${Math.round(edge)}px from the nearest edge. With layout 'auto' it should sit on the margin lane (about ${ROAD}px in), where the legs to the neighbouring screens run.`});
+    });
+  }
+  return issues;
+}
+
+/**
+ * Checks what only exists once the film is laid out for a frame size: no label over another stop's ring or its
+ * own element, and none over text the capture lists. Returns warnings; a label is moved, never cropped, so a
+ * crowded screen still renders, but the journey should be fixed (a shorter label, or a ring that leaves room).
+ */
+export function validateLabels(model: Model, name: string, view: Frame): Issue[] {
+  const issues: Issue[] = [];
+  for (const stop of model.stops) {
+    const where = `stop "${stop.id}" (${name})`;
+    const cover = labelCoverage(model, stop, view);
+    if (cover.ownElement > 0) issues.push({level: 'warning', where, message: 'its label covers the element it describes. Give the label room beside the element, or shorten it.'});
+    if (cover.otherRing.length > 0) issues.push({level: 'warning', where, message: `its label covers the ring of ${cover.otherRing.map((id) => `"${id}"`).join(', ')}.`});
+    if (cover.text > 0) issues.push({level: 'warning', where, message: `its label covers text of the capture (${Math.round(cover.text)} px squared). Shorten it or leave a clearer side.`});
+  }
+  return issues;
+}
+
+/** Lays the journey out for each check frame and runs every check that needs the layout. */
+export function validateFilm(journey: Journey, theme: Theme): Issue[] {
+  const issues = validateAutoRoutes(journey);
+  if (issues.some((i) => i.level === 'error')) return issues;
+  CHECK_FRAMES.forEach(({name, frame}, i) => {
+    const model = buildModel(journey, theme, {}, frame);
+    // An 'auto' journey has no origins or joined routes until it is laid out: check the resolved one, once.
+    if (journey.layout === 'auto' && i === 0) issues.push(...validateJourney(model.journey));
+    issues.push(...validateLabels(model, name, frame));
+  });
+  return issues;
+}
+
+/** Must match HOOK_FRAMES and the crossfade FADE in ThreadFilm.tsx. */
+const DEFAULT_HOOK_FRAMES = 90;
+const HOOK_CROSSFADE = 12;
+/** The headline stays fully formed for at least 0.6 s at 30 fps before the card fades out. */
+const MIN_FORMED_FRAMES = 18;
+
+/** The hook must have time to form and to be read: formed within 8 frames of each line, then held for 0.6 s. */
+export function validateHook(hook: Hook | undefined): Issue[] {
+  if (!hook) return [];
+  const frames = hook.frames ?? DEFAULT_HOOK_FRAMES;
+  const issues: Issue[] = [];
+  for (const {name, frame} of CHECK_FRAMES) {
+    const {lines} = hookLayout(hook.headline, frame);
+    const held = frames - HOOK_CROSSFADE - hookFormedAt(lines.length);
+    if (held < MIN_FORMED_FRAMES) issues.push({level: 'warning', where: `hook (${name})`, message: `its ${lines.length}-line headline is fully formed for only ${Math.max(0, held)} frames before the card fades. Give the hook at least ${frames + MIN_FORMED_FRAMES - held} frames.`});
+  }
+  return issues;
 }

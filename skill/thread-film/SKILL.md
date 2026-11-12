@@ -45,7 +45,7 @@ Example prompt: `Use the thread-film skill to make a 60-second launch film for m
 | `src/film/vo.json` and `public/vo/` | Optional narration: clips in `public/vo/` listed in `vo.json` |
 | `public/audio/` | Built-in sound effects and music beds, generated; sound needs no setup |
 
-Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. Compositions are `film-16x9` and `film-9x16` (active theme) and `film-16x9-light` and `film-9x16-light`. `pnpm validate` checks the journey (marks exist, captures exist for both modes, no stop without a route point) before any render. Scripts: `render:demo`, `render:16x9`, `render:9x16`, `render:screens`, `gif`, `audio` (regenerates the sound effects and music beds), `studio`, `typecheck`.
+Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. Compositions are `film-16x9` and `film-9x16` (active theme) and `film-16x9-light` and `film-9x16-light`. `pnpm validate` checks the journey (also the mobile demo; marks exist, captures exist for both modes, no stop without a route point) before any render. Scripts: `render:mobile`, `render:demo`, `render:16x9`, `render:9x16`, `render:screens`, `gif`, `audio` (regenerates the sound effects and music beds), `studio`, `typecheck`.
 
 ## Workflow
 1. Read `rules/pattern.md` and `rules/why-this-works.md`.
@@ -65,6 +65,7 @@ Everything in `src/engine/` is the engine; leave it alone unless fixing a bug. C
 - `rules/building.md`: engine layout and how to make a film
 - `rules/captures.md`: getting real captures safely
 - `rules/sound.md`: the sound cue table, timing and mix rules, mood and options
+- `rules/mobile.md`: films for phone and tablet apps (device frame, zoom policy, label placement, automatic layout)
 - `rules/example.md`: the demo film in this repo (Fernwick, Order #1042, two themes)
 - `rules/story.md`: write the story before any code (hook, structure, voiceover, CTA); fill `templates/story-brief.md`; check with `pnpm run story-check`
 
