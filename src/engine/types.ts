@@ -96,7 +96,12 @@ export type Journey = {
   /** Opening wide shot of the first screen. */
   intro: {frames: number; narration?: string};
   /** Closing pull-back that shows the whole line. */
-  outro: {lines: string[]; frames: number};
+  outro: {
+    lines: string[];
+    /** Optional re-wrap of the closing words for 9:16, where shorter lines can be set larger. */
+    portraitLines?: string[];
+    frames: number;
+  };
   /** Small standing line in the corner, for example a note that the data is demo data. */
   footnote?: string;
   /** Optional music bed under public/. */

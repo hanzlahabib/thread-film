@@ -6,7 +6,7 @@ import MomentLabel from './components/MomentLabel';
 import Thread from './components/Thread';
 import World from './components/World';
 import {useFrame} from './frame';
-import {cameraAt, type Model} from './model';
+import {cameraAt, closingFor, type Model} from './model';
 
 type Props = {model: Model};
 
@@ -34,7 +34,7 @@ export default function Journey({model}: Props) {
         .map((stop) => (
           <ChapterTitle key={stop.id} lines={titleOf(stop.screen)} startFrame={stop.depart} endFrame={stop.arrive - TITLE_CLEAR} placement="corner" />
         ))}
-      <ChapterTitle lines={outro.lines} startFrame={model.overviewStart + CLOSING_DELAY} endFrame={model.durationInFrames + 30} placement="center" />
+      <ChapterTitle lines={outro.lines} startFrame={model.overviewStart + CLOSING_DELAY} endFrame={model.durationInFrames + 30} placement="center" closing={closingFor(model, view)} />
       {model.stops.map((stop) => (
         <MomentLabel key={stop.id} stop={stop} camera={camera} />
       ))}

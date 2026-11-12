@@ -7,11 +7,15 @@ type Props = {model: Model};
 
 /** Portrait: top of the pill row inside the top band. The caption card takes the row below, 16 px or more clear. */
 const PORTRAIT_PILL_TOP = 22;
+/** The pills are fully gone this many frames before the pull-back camera starts moving, so none is half-faded over the strip. */
+const PILL_CLEAR = 2;
+/** Frames the pills take to fade out ahead of the pull-back. */
+const PILL_FADE = 10;
 
 // Standing furniture of the journey: which screen the line is on, how far along the whole line it is, and an
 // optional footnote. The pills sit on a solid strip of the world's background across the top safe margin, so no
 // screen pixel is ever under them (the camera also keeps every landing, ring and label below that margin). The
-// strip stays opaque; only the pills fade at the pull-back, when the overview already sits below the strip.
+// strip stays opaque; the pills fade out just before the pull-back starts and are gone while the camera is still at rest.
 export default function Hud({model}: Props) {
   const frame = useCurrentFrame();
   const view = useFrame();
@@ -21,7 +25,7 @@ export default function Hud({model}: Props) {
   const index = Math.max(0, screens.findIndex((s) => s.id === to.screen));
   const progress = drawnAt(model, frame) / model.trail.length;
   const appear = interpolate(frame, [6, 22], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const overview = interpolate(frame, [model.overviewStart, model.overviewStart + 14], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const overview = interpolate(frame, [model.overviewStart - PILL_CLEAR - PILL_FADE, model.overviewStart - PILL_CLEAR], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const pad = (n: number) => String(n).padStart(2, '0');
 
   // Landscape: the pills are centred in the strip. Portrait: they take its upper row.

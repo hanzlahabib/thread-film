@@ -287,7 +287,7 @@ export const journey: Journey = {
     },
   ],
   intro: {frames: 40},
-  outro: {lines: ['One order,', 'four screens, one line'], frames: 72},
+  outro: {lines: ['One order,', 'four screens, one line'], portraitLines: ['One order,', 'four screens,', 'one line'], frames: 72},
 };
 
 // Opening card.

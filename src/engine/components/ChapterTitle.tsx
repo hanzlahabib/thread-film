@@ -1,5 +1,5 @@
 import {Easing, interpolate, useCurrentFrame} from 'remotion';
-import {CLOSING_GAP, CLOSING_LINE_HEIGHT, GLYPH_EM, closingLayout} from '../closing';
+import {CLOSING_GAP, CLOSING_LINE_HEIGHT, GLYPH_EM, type ClosingLayout} from '../closing';
 import {useFrame} from '../frame';
 import {useTheme} from '../theme';
 
@@ -9,6 +9,8 @@ type Props = {
   endFrame: number;
   /** 'corner' is a caption card in a clear band under a flight; 'center' is the closing line under the whole map. */
   placement: 'corner' | 'center';
+  /** Layout of the closing line (placement 'center' only), computed once by the model. */
+  closing?: ClosingLayout;
 };
 
 /** Frames for the caption to reveal: the card is complete after this, then holds until the exit. */
@@ -30,7 +32,7 @@ const PORTRAIT_CARD_BOTTOM = 20;
 // whichever neighbour is flying past. The type fades and rises on the finished card (no clip mask, so no
 // half-drawn letters). The closing line sits on its own solid band under the map; the camera leaves CLOSING_GAP
 // of clear background between the lowest screen and the type (see closing.ts).
-export default function ChapterTitle({lines: rawLines, startFrame, endFrame, placement}: Props) {
+export default function ChapterTitle({lines: rawLines, startFrame, endFrame, placement, closing}: Props) {
   const frame = useCurrentFrame();
   const view = useFrame();
   const theme = useTheme();
@@ -41,16 +43,15 @@ export default function ChapterTitle({lines: rawLines, startFrame, endFrame, pla
   const exit = center ? 1 : interpolate(frame, [endFrame - EXIT, endFrame], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const visible = Math.min(enter, exit);
   // A caption card is one line, so it stays short.
-  const lines = center ? rawLines : [rawLines.join(' ')];
-  const closing = closingLayout(view.width, view.height, portrait, view.safe.side, rawLines);
+  const lines = center && closing ? closing.lines : center ? rawLines : [rawLines.join(' ')];
   const wanted = portrait ? 56 : 52;
   // Fitted to the frame so a long line shrinks instead of running off the edge.
   const widest = Math.max(...lines.map((l) => l.length), 1);
-  const size = center ? closing.size : Math.min(wanted, (view.width - view.safe.side * 2) / (widest * GLYPH_EM + PANEL_PAD * 2.8));
+  const size = center && closing ? closing.size : Math.min(wanted, (view.width - view.safe.side * 2) / (widest * GLYPH_EM + PANEL_PAD * 2.8));
   const rise = (1 - enter) * size * RISE;
   const textStyle = {fontSize: size, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: CLOSING_LINE_HEIGHT, color: theme.text, whiteSpace: 'nowrap', opacity: visible, transform: `translateY(${rise}px)`} as const;
 
-  if (center) {
+  if (center && closing) {
     // A solid band from CLOSING_GAP/2 above the type to the frame's edge: whatever the camera is still passing
     // over this part of the frame is hidden before the type is shown, and the map settles clear of it.
     return (

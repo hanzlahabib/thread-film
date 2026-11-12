@@ -2,7 +2,7 @@ import {Easing} from 'remotion';
 import {Trail, lerp, type Pt} from './geometry';
 import {labelExtent, labelPlacement, labelSize} from './labels';
 import {chromeInsets} from './chrome';
-import {CLOSING_GAP, closingLayout} from './closing';
+import {CLOSING_GAP, closingLayout, type ClosingLayout} from './closing';
 import type {Theme} from './theme';
 import {buildTrail} from './trail';
 import {CAPTURE_W, type Journey, type Stop} from './types';
@@ -250,21 +250,32 @@ const SETTLE_RATE = 0.0006;
 /** Air kept between the top band that holds the HUD and the highest screen edge in the overview, in frame pixels. */
 const OVERVIEW_TOP_AIR = 24;
 
+/** Growth of the slow settle after the pull-back lands, as a factor on the camera scale. */
+function settleMax(model: Model): number {
+  return 1 + SETTLE_RATE * model.journey.outro.frames;
+}
+
+/** Layout of the closing line for this frame size; the overview camera and the caption both read it. */
+export function closingFor(model: Model, frame: Frame): ClosingLayout {
+  const {bounds, journey} = model;
+  return closingLayout(frame, journey.outro.lines, journey.outro.portraitLines, {w: bounds.maxX - bounds.minX, h: bounds.maxY - bounds.minY}, settleMax(model));
+}
+
 /**
- * The whole map, fitted into the band between the HUD strip at the top and the closing line at the bottom, with
- * CLOSING_GAP of clear space left between the lowest screen edge and the type. The slow settle after landing is
- * budgeted for, so the gap is never eaten once the camera has stopped.
+ * The whole map. Landscape: fitted into the band between the HUD strip at the top and the closing line at the
+ * bottom, with CLOSING_GAP of clear space left between the lowest screen edge and the type. Portrait: the map
+ * and type block placed by closingLayout. The slow settle after landing is budgeted for, so the gap is never
+ * eaten once the camera has stopped.
  */
 function overviewCamera(model: Model, frame: Frame): Camera {
   const {bounds} = model;
   const w = bounds.maxX - bounds.minX;
   const h = bounds.maxY - bounds.minY;
-  const closing = closingLayout(frame.width, frame.height, frame.portrait, frame.safe.side, model.journey.outro.lines);
-  const settleMax = 1 + SETTLE_RATE * model.journey.outro.frames;
-  const regionTop = frame.safe.top + OVERVIEW_TOP_AIR;
-  const regionBottom = closing.top - CLOSING_GAP;
-  const fitW = ((frame.width - frame.safe.side * (frame.portrait ? 1 : 2)) * (frame.portrait ? 1 : 0.94)) / w;
-  const scale = Math.min(fitW, (regionBottom - regionTop) / h) / settleMax;
+  const closing = closingFor(model, frame);
+  const growth = settleMax(model);
+  const regionTop = closing.map ? closing.map.top : frame.safe.top + OVERVIEW_TOP_AIR;
+  const regionBottom = closing.map ? closing.map.top + closing.map.height : closing.top - CLOSING_GAP;
+  const scale = closing.map ? closing.map.scale : Math.min((frame.width - frame.safe.side * 2) * 0.94 / w, (regionBottom - regionTop) / h) / growth;
   // Centre the map vertically in the region (the settle grows it about the camera centre, which is its middle).
   const fy = frame.portrait ? FOCUS_Y.portrait : FOCUS_Y.landscape;
   const lift = ((regionTop + regionBottom) / 2 - frame.height * fy) / scale;
