@@ -22,7 +22,7 @@ The demo is a 29-second film of one order (Order #1042, $212.54) travelling thro
 ## Quickstart
 
 ```bash
-git clone <this-repo-url> thread-film
+git clone https://github.com/hanzlahabib/thread-film.git thread-film
 cd thread-film && pnpm install
 pnpm run validate       # checks the journey and both themes' captures
 pnpm run render:demo    # out/demo-dark.mp4 and out/demo-light.mp4 (1920x1080, about a minute each)
